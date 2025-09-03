@@ -13,11 +13,11 @@
     --bar-alpha: 0;
     --glow-enabled: 0;
     --glow-color: #6c5ce7;
-    --shadow-amt: 0.4;
+    --shadow-amt: 0.8;
   }
   *{box-sizing:border-box}
-  body{margin:0;padding:18px;background:#0e0f11;color:#f6f7f8;font-family:Inter,Segoe UI,Roboto,system-ui,-apple-system;line-height:1.35}
-  .wrap{display:flex;justify-content:center;margin-bottom:16px}
+  body{margin:0;padding:15px;background:#0e0f11;color:#f6f7f8;font-family:Inter,Segoe UI,Roboto,system-ui,-apple-system;line-height:1.35}
+  .wrap{display:flex;justify-content:center;margin-bottom:20px;background:#cecece}
   .bar-wrap{position:relative;display:inline-block;padding:12px;border-radius:calc(var(--bar-r) + 12px);}
   .stream-bar{
     width:var(--bar-w);
@@ -26,7 +26,7 @@
     display:flex;align-items:center;gap:8px;padding:0 12px;
     background: linear-gradient(90deg, rgba(0,0,0,var(--bar-alpha)), rgba(90,90,90,var(--bar-alpha)));
     overflow:visible;position:relative;
-    box-shadow:0 8px 30px rgba(0,0,0,var(--shadow-amt));
+    box-shadow:0 2px 15px rgba(0,0,0,var(--shadow-amt));
     transition:all .25s ease;
   }
   /* rotating glow ring */
@@ -52,7 +52,7 @@
   @keyframes bounce{0%{transform:translateY(0)}30%{transform:translateY(-8px)}50%{transform:translateY(0)}70%{transform:translateY(-4px)}100%{transform:translateY(0)}}
   .bounce{animation:bounce .6s ease;}
   /* Panel */
-  .panel{max-width:1000px;margin:0 auto;background:#141518;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
+  .panel{max-width:1000px;margin:0 auto;background:#292a2f;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
   .top-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
   .btn{padding:8px 10px;border-radius:8px;background:#23262d;border:1px solid #2b2f38;color:#fff;cursor:pointer;font-weight:800}
   .btn.small{padding:6px 8px;font-size:13px}
@@ -97,7 +97,7 @@
         <div id="barUser" class="user">@PlayJEGUE</div>
         <div class="counters" aria-live="polite">
           <div id="deathGroup" class="death-row">
-            <i id="skullIcon" class="fa-solid fa-skull fa-fw fa-skull" aria-hidden="true"></i>
+            <i id="skullIcon" class="fa-solid fa-skull fa-skull" aria-hidden="true"></i>
             <div id="deathCount" class="counter" style="min-width:30px;text-align:right">0</div>
           </div>
           <div id="divider" class="divider"></div>
@@ -140,7 +140,7 @@
         <label>Mortes</label>
         <div class="row">
           <button class="btn small" id="dMinus">-</button>
-          <input id="dInput" class="small" type="number" min="0" value="0" style="width:80px"/>
+          <input id="dInput" class="small" type="number" min="0" value="0" style="width:60px"/>
           <button class="btn small" id="dPlus">+</button>
           <button class="btn small" id="dReset">Zerar</button>
           <div style="width:10px"></div>
@@ -151,11 +151,11 @@
         <label>Troféus (Atual / Platina)</label>
         <div class="row" style="align-items:center">
           <button class="btn small" id="tMinus">-</button>
-          <input id="tCurrent" class="small" type="number" min="0" value="0" style="width:70px"/>
+          <input id="tCurrent" class="small" type="number" min="0" value="0" style="width:60px"/>
           <button class="btn small" id="tPlus">+</button>
           <div style="width:8px"></div>
           <button class="btn small" id="mMinus">-</button>
-          <input id="tMax" class="small" type="number" min="1" value="1" style="width:70px"/>
+          <input id="tMax" class="small" type="number" min="1" value="1" style="width:60px"/>
           <button class="btn small" id="mPlus">+</button>
           <button class="btn small" id="tReset">Zerar</button>
           <div style="width:10px"></div>
@@ -237,7 +237,7 @@
         <div class="row" style="align-items:center;">
           <div style="min-width:120px"><label>Largura (px)</label><input id="barW" class="slider" type="range" min="240" max="1920" value="450"><span id="barWVal">450</span></div>
           <div style="min-width:120px"><label>Altura (px)</label><input id="barH" class="slider" type="range" min="24" max="100" value="50"><span id="barHVal">50</span></div>
-          <div style="min-width:120px"><label>Cantos (px)</label><input id="barR" class="slider" type="range" min="0" max="100" value="50"><span id="barRVal">50</span></div>
+          <div style="min-width:120px"><label>Cantos (px)</label><input id="barR" class="slider" type="range" min="1" max="50" value="50"><span id="barRVal">50</span></div>
           <div style="min-width:120px"><label>Transparência</label><input id="barAlpha" class="slider" type="range" min="0" max="1" step="0.01" value="0"><span id="barAlphaVal">0</span></div>
         </div>
         <div style="margin-top:8px" class="row">
@@ -315,13 +315,19 @@ async function ensureGuidAndSave(){ if(!CURRENT_GUID){ CURRENT_GUID = generateGU
 /* Helpers */
 const $ = s=>document.querySelector(s); const $$ = s=>Array.from(document.querySelectorAll(s));
 function enabledPlatforms(){ return state.platforms.filter(p=>p.enabled); }
-function save(){ try{ localStorage.setItem(STORAGE, JSON.stringify(state)); }catch(e){} if(CURRENT_GUID){ idbPut(CURRENT_GUID, state); } updateUIValues(); }
+function save(){ try{ localStorage.setItem(STORAGE, JSON.stringify(state)); }catch(e){} if(CURRENT_GUID){ idbPut(CURRENT_GUID, state); } }
 function setBarStyle(){ document.documentElement.style.setProperty('--bar-w', state.barW + 'px'); document.documentElement.style.setProperty('--bar-h', state.barH + 'px'); document.documentElement.style.setProperty('--bar-r', state.barR + 'px'); document.documentElement.style.setProperty('--bar-alpha', state.barAlpha); document.documentElement.style.setProperty('--glow-color', state.glowColor); document.documentElement.style.setProperty('--shadow-amt', state.shadowAmt); document.documentElement.style.setProperty('--glow-enabled', state.glow?1:0); $('#glowRing').style.display = state.glow ? 'block' : 'none'; }
 
 function renderBar(triggerBounce){
   setBarStyle();
   $('#deathCount').textContent = state.death;
   $('#trophyCount').textContent = `${state.trophyCur}/${state.trophyMax}`;
+  
+  $('#dInput').value = state.death;
+  $('#tCurrent').value = state.trophyCur;
+  $('#tMax').value = state.trophyMax;
+  $('#trophyCount').textContent = `${state.trophyCur}/${state.trophyMax}`;
+
   $('#deathGroup').style.display = state.showDeath ? 'flex' : 'none';
   $('#trophyGroup').style.display = state.showTrophy ? 'flex' : 'none';
   $('#divider').style.display = (state.showDeath && state.showTrophy) ? 'block' : 'none';
@@ -344,7 +350,7 @@ function renderBar(triggerBounce){
   if(state.mainConsole === 'xbox'){ $('#psTrophy').classList.add('hidden'); $('#xboxGem').classList.remove('hidden'); }else{ $('#xboxGem').classList.add('hidden'); $('#psTrophy').classList.remove('hidden'); }
 
   const skull = $('#skullIcon'); const digits = String(state.death).length;
-  skull.style.marginRight = (digits>3?4:6) + 'px'; $('#deathCount').style.minWidth = (20 + digits*8) + 'px';
+  skull.style.marginRight = 0; // (digits>3?4:6) + 'px'; $('#deathCount').style.minWidth = (20 + digits*8) + 'px';
 
   if(triggerBounce && state.iconAnim){ const elIcon = logoBox.firstElementChild; if(elIcon){ elIcon.classList.remove('bounce'); void elIcon.offsetWidth; elIcon.classList.add('bounce'); } }
 }
@@ -442,7 +448,7 @@ function initAfterLoad(skipTabRestore){
 }
 
 /* Icons map */
-const PLATFORM_ICONS = { youtube: 'fa-brands fa-youtube', twitch: 'fa-brands fa-twitch', kick: 'fa-solid fa-bolt', instagram: 'fa-brands fa-instagram', tiktok: 'fa-brands fa-tiktok', discord: 'fa-brands fa-discord', playstation: 'fa-brands fa-playstation', xbox: 'fa-brands fa-xbox' };
+const PLATFORM_ICONS = { youtube: 'fa-brands fa-youtube', twitch: 'fa-brands fa-twitch', kick: 'fa-brands fa-kickstarter-k', instagram: 'fa-brands fa-instagram', tiktok: 'fa-brands fa-tiktok', discord: 'fa-brands fa-discord', playstation: 'fa-brands fa-playstation', xbox: 'fa-brands fa-xbox' };
 
 /* Start */
 document.addEventListener('DOMContentLoaded', async ()=>{ try{ const raw = localStorage.getItem(STORAGE); if(raw) Object.assign(state, JSON.parse(raw)); }catch(e){} if(!Array.isArray(state.platforms) || state.platforms.length===0) state.platforms = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS)); initAfterLoad(); });
