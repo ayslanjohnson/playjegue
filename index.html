@@ -4,89 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>PlayJEGUE Stream Bar • Widget</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous">
-<style>
-  :root{
-    --bar-w: 450px;
-    --bar-h: 50px;
-    --bar-r: 50px;
-    --bar-alpha: 0;
-    --glow-enabled: 0;
-    --glow-color: #6c5ce7;
-    --shadow-amt: 0.8;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;padding:15px;background:#0e0f11;color:#f6f7f8;font-family:Inter,Segoe UI,Roboto,system-ui,-apple-system;line-height:1.35}
-  .wrap{display:flex;justify-content:center;margin-bottom:20px;background:#cecece}
-  .bar-wrap{position:relative;display:inline-block;padding:12px;border-radius:calc(var(--bar-r) + 12px);}
-  .stream-bar{
-    width:var(--bar-w);
-    height:var(--bar-h);
-    border-radius:var(--bar-r);
-    display:flex;align-items:center;gap:8px;padding:0 12px;
-    background: linear-gradient(90deg, rgba(0,0,0,var(--bar-alpha)), rgba(90,90,90,var(--bar-alpha)));
-    overflow:visible;position:relative;
-    box-shadow:0 2px 15px rgba(0,0,0,var(--shadow-amt));
-    transition:all .25s ease;
-  }
-  /* rotating glow ring */
-  .glow-ring{
-    position:absolute;left:0;top:0;right:0;bottom:0;border-radius:9999px;pointer-events:none;opacity:calc(var(--glow-enabled));mix-blend-mode:screen;
-    background:conic-gradient(from 0deg, transparent, var(--glow-color), transparent);
-    filter:blur(12px) saturate(1.2);
-    animation: spin 8s linear infinite;
-    z-index:0;
-  }
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .logo-box{width:42px;height:42px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.04);overflow:hidden;flex:0 0 auto;z-index:1}
-  .logo-box img{width:36px;height:36px;object-fit:contain;display:block}
-  .logo-fa{font-size:20px}
-  .user{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:1}
-  .counters{margin-left:auto;display:flex;align-items:center;gap:10px;z-index:1}
-  .counter{font-weight:900;font-size:16px;min-width:40px;text-align:right}
-  .death-row{display:flex;align-items:center;gap:6px;min-width:36px}
-  .fa-skull{font-size:18px}
-  .divider{width:1px;height:28px;background:rgba(255,255,255,.22)}
-  .hidden{display:none !important}
-  /* bounce effect */
-  @keyframes bounce{0%{transform:translateY(0)}30%{transform:translateY(-8px)}50%{transform:translateY(0)}70%{transform:translateY(-4px)}100%{transform:translateY(0)}}
-  .bounce{animation:bounce .6s ease;}
-  /* Panel */
-  .panel{max-width:1000px;margin:0 auto;background:#292a2f;border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
-  .top-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
-  .btn{padding:8px 10px;border-radius:8px;background:#23262d;border:1px solid #2b2f38;color:#fff;cursor:pointer;font-weight:800}
-  .btn.small{padding:6px 8px;font-size:13px}
-  .tabs{display:flex;gap:8px;flex-wrap:wrap}
-  .tab-btn{background:transparent;border:1px solid #2b2f38;color:#ddd;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:700}
-  .tab-btn.active{background:#20232b;color:#fff;outline:2px solid rgba(124,58,237,.18)}
-  .tab{display:none}
-  .tab.active{display:block}
-  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-  label{font-size:13px;color:#b9bcc6;display:block;margin-bottom:6px}
-  input[type="text"],input[type="number"],input[type="url"],select{background:#0f1117;border:1px solid #2b2f38;padding:8px;border-radius:8px;color:#fff}
-  input[type="color"]{border:0;background:transparent;width:40px;height:34px}
-  .slider{width:220px}
-  .small-note{font-size:12px;color:#9aa0ac}
-  .toggle{width:44px;height:26px;border-radius:999px;background:#2b2f38;position:relative;cursor:pointer}
-  .toggle:after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#9aa0ac;transition:transform .18s ease}
-  .toggle.on{background:#37c976}
-  .toggle.on:after{transform:translateX(18px);background:#fff}
-  .card{background:#0f1117;border-radius:10px;padding:10px;border:1px solid #2b2f38}
-  .platform-list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow:auto}
-  .plat-item{display:grid;grid-template-columns:40px 1fr 80px 60px;align-items:center;gap:10px;padding:8px;border-radius:8px;background:#0c0e13;border:1px solid #2b2f38}
-  .plat-logo{display:grid;place-items:center}
-  .subtabs{display:flex;gap:6px;margin:8px 0}
-  .sub-btn{background:#10131a;border:1px solid #2b2f38;color:#bbb;padding:6px 8px;border-radius:8px;cursor:pointer}
-  .sub-btn.active{background:#171b23;color:#fff}
-  footer{opacity:.9;text-align:center;font-size:12px;margin-top:10px}
-  footer a{color:#7aa2ff;text-decoration:none}
-  .lang{margin-right:auto}
-  /* responsive adjustments for skull and counters */
-  @media (max-width:520px){
-    .stream-bar{padding:0 8px}
-    .logo-box{width:36px;height:36px}
-  }
-</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="wrap">
@@ -102,7 +21,7 @@
           </div>
           <div id="divider" class="divider"></div>
           <div id="trophyGroup" class="row" style="align-items:center">
-            <img id="psTrophy" class="" src="trofeu.png" alt="trophy" style="width:22px;height:22px;object-fit:contain">
+            <img id="psTrophy" class="" src="trofeu.png" alt="trophy" style="width:25px;height:25px;object-fit:contain">
             <i id="xboxGem" class="fa-regular fa-gem fa-fw hidden" aria-hidden="true"></i>
             <div id="trophyCount" class="counter">0/1</div>
           </div>
@@ -127,7 +46,12 @@
       <button id="refreshBtn" class="btn">Atualizar</button>
     </div>
 
-    <div class="tabs">
+    <div class="card" style="margin-bottom:12px">
+  <label for="currentId">ID</label>
+  <input id="currentId" type="text" readonly style="width:100%; background:#0f1117; border:1px solid #2b2f38; padding:6px; border-radius:6px; color:#fff" />
+</div>
+
+<div class="tabs">
       <button class="tab-btn active" data-tab="contadores">Contadores</button>
       <button class="tab-btn" data-tab="plataformas">Plataformas</button>
       <button class="tab-btn" data-tab="instrucoes">Instruções</button>
@@ -182,20 +106,6 @@
 
         <div class="platform-list" id="platformList"></div>
       </div>
-
-      <div class="card" style="margin-top:10px">
-        <label>Adicionar plataforma</label>
-        <div class="row">
-          <input id="addName" type="text" placeholder="Nome (ex: CustomTV)"/>
-          <input id="addUser" type="text" placeholder="@usuario (opcional)"/>
-        </div>
-        <div class="row" style="margin-top:8px">
-          <input id="addColor" type="color" value="#6c5ce7"/>
-          <input id="addIconUrl" type="url" placeholder="URL do ícone (opcional)"/>
-          <button id="addBtn" class="btn">+ Adicionar</button>
-        </div>
-        <small class="small-note" style="display:block;margin-top:6px;">Crie plataformas personalizadas; se fornecer URL de ícone, ele será utilizado. Plataformas adicionadas aparecem na aba Custom e são persistidas.</small>
-      </div>
     </div>
 
     <!-- INSTRUÇÕES -->
@@ -204,26 +114,15 @@
         <label>OBS</label>
         <div style="color:#b9bcc6;line-height:1.8">
           <ul style="margin:0 0 0 18px;padding:0;list-style:disc">
-            <li>Use como <strong>Browser Source</strong> com <code>?obs=true</code> ou como Dock com <code>?dock=true</code>.</li>
-            <li>Recomendações de tamanho no OBS (Source): defina <strong>Largura</strong> para o mesmo valor configurado na aba Geral e <strong>Altura</strong> igual à altura da barra + ~10px de margem. Ex.: largura 450 e altura 60.</li>
-            <li>Ao copiar a URL o sistema gera um <strong>GUID</strong> e persiste o estado localmente (IndexedDB) — a URL copiada contém <code>&amp;guid=</code>.</li>
-            <li>Os botões de URL estão disponíveis em todas as abas para rapidez no workflow.</li>
-          </ul>
-        </div>
-      </div>
-      <div class="card" style="margin-top:8px">
-        <label>Atalhos</label>
-        <div style="color:#b9bcc6;line-height:1.8">
-          <ul style="margin:0 0 0 18px;padding:0;list-style:disc">
-            <li><strong>Troféus</strong>: CTRL/CMD + [ (atual), CTRL/CMD + ] (platina), CTRL/CMD + \ (reset)</li>
-            <li><strong>Mortes</strong>: CTRL/CMD + SHIFT + ] (incrementa), CTRL/CMD + SHIFT + \ (reset)</li>
-            <li>As configurações podem ser exportadas/importadas e serão persistidas por GUID.</li>
+            <li>Source (barra): use a URL <strong>sem parâmetros</strong>. Ela já carrega/gera um <strong>id</strong> automaticamente.</li>
+            <li>Dock (controles): use <code>?dock=true</code> na mesma URL. O <strong>id</strong> deve ser o mesmo do Source.</li>
+            <li>Os botões acima já copiam as URLs corretas, incluindo <code>&id=</code>.</li>
           </ul>
         </div>
       </div>
     </div>
 
-    <!-- GERAL (última) -->
+    <!-- GERAL -->
     <div id="tab-geral" class="tab">
       <div class="card">
         <label>Plataforma principal de console</label>
@@ -246,6 +145,25 @@
         </div>
       </div>
       <div class="card">
+        <label>Logo-box</label>
+        <div class="row" style="align-items:center;">
+          <div style="display:flex;align-items:center;gap:8px"><div id="logoToggle" class="toggle on"></div><span>Habilitar caixa</span></div>
+          <div><label>Tamanho</label><input id="logoSize" type="range" min="24" max="160" value="65"><span id="logoSizeVal">65</span></div>
+          <div>
+            <label>Cor de fundo</label>
+            <select id="logoColor">
+              <option value="auto">Automática (cor da plataforma)</option>
+              <option value="custom">Personalizada</option>
+            </select>
+            <input id="logoBgPicker" type="color" value="#ffffff" title="Cor personalizada">
+          </div>
+          <div style="display:flex;align-items:center;gap:8px"><div id="logoBorderToggle" class="toggle on"></div><span>Borda visível</span></div>
+          <div><label>Espessura</label><input id="logoBorderWidth" type="range" min="0" max="8" value="1"><span id="logoBorderWidthVal">1</span></div>
+          <div><label>Cor</label><input id="logoBorderColor" type="color" value="#ffffff"></div>
+          <div><label>Raio</label><input id="logoRadius" type="range" min="0" max="200" value="999"><span id="logoRadiusVal">999</span></div>
+        </div>
+      </div>
+      <div class="card" hidden>
         <label>Glow e Sombra</label>
         <div class="row" style="align-items:center;">
           <div style="display:flex;align-items:center;gap:8px"><div id="toggleGlow" class="toggle"></div><span>Glow animado</span></div>
@@ -253,205 +171,17 @@
           <div><label>Sombra</label><input id="shadowAmt" type="range" min="0" max="1" step="0.05" value="0.4"><span id="shadowVal">0.4</span></div>
         </div>
       </div>
-      <div class="card">
-        <label>Animação ícone (ativa por padrão)</label>
-        <div class="row" style="align-items:center;">
-          <div style="display:flex;align-items:center;gap:8px"><div id="toggleIconAnim" class="toggle on"></div><span>Ativar efeito bounce nos ícones durante rotação</span></div>
-        </div>
-      </div>
       <div class="card" style="margin-top:8px">
         <button id="resetAll" class="btn">Resetar tudo para o padrão</button>
       </div>
     </div>
-
   </div>
 
   <footer>
-    <div style="line-height:1.6">Widget PlayJEGUE — Propriedades: Widget URL <a href="https://playjegue.vercel.app" target="_blank">playjegue.vercel.app</a> • YouTube <a href="https://youtube.com/@playjegue" target="_blank">youtube.com/@playjegue</a></div>
+    <div style="line-height:1.6">Widget PlayJEGUE — Propriedades: Widget URL <a href="#" target="_blank">playjegue.vercel.app</a></div>
     <div style="line-height:1.4">&copy; <span id="year"></span> PlayJEGUE — Código desta página licenciado para PlayJEGUE.</div>
   </footer>
-
-<script>
-const I18N = { "pt-BR": { Idioma: "Idioma", Geral: "Geral", Contadores: "Contadores", Plataformas: "Plataformas", Instrucoes: "Instruções" }, "en": { Idioma: "Language", Geral: "General", Contadores: "Counters", Plataformas: "Platforms", Instrucoes: "Instructions" } };
-
-/* Defaults & State */
-const STORAGE = 'playjegue_stream_state_v5';
-const DEFAULT_PLATFORMS = [
-  {name:'youtube', label:'YouTube', username:'', enabled:false, color:'#ff0000', iconKey:'youtube', iconUrl:'', category:'principais'},
-  {name:'twitch', label:'Twitch', username:'', enabled:false, color:'#9146ff', iconKey:'twitch', iconUrl:'', category:'principais'},
-  {name:'kick', label:'Kick', username:'', enabled:false, color:'#53fc18', iconKey:'kick', iconUrl:'', category:'principais'},
-  {name:'instagram', label:'Instagram', username:'', enabled:false, color:'#e1306c', iconKey:'instagram', iconUrl:'', category:'redes'},
-  {name:'tiktok', label:'TikTok', username:'', enabled:false, color:'#ff0050', iconKey:'tiktok', iconUrl:'', category:'redes'},
-  {name:'discord', label:'Discord', username:'', enabled:false, color:'#7289da', iconKey:'discord', iconUrl:'', category:'redes'},
-  {name:'playstation', label:'PlayStation', username:'', enabled:false, color:'#0070d1', iconKey:'playstation', iconUrl:'', category:'consoles'},
-  {name:'xbox', label:'Xbox', username:'', enabled:false, color:'#107c10', iconKey:'xbox', iconUrl:'', category:'consoles'},
-  {name:'custom', label:'CUSTOM', username:'@PlayJEGUE', enabled:true, color:'#000000', iconKey:'', iconUrl:'PLAY_JEGUE_LOGO_1x1.png', category:'custom', gradient:true, gradientFrom:'#000000', gradientTo:'#808080'}
-];
-let state = {
-  death:0, showDeath:true,
-  trophyCur:0, trophyMax:1, showTrophy:true,
-  platforms: [], currentIndex: 0,
-  rotate:true, transitionSec:5,
-  barW:450, barH:50, barR:50, barAlpha:0,
-  mainConsole: 'playstation',
-  lang: (navigator.language && navigator.language.startsWith('en'))? 'en' : 'pt-BR',
-  currentTab: 'contadores',
-  glow:false, glowColor:'#6c5ce7', shadowAmt:0.4,
-  iconAnim:true,
-  isObs: new URLSearchParams(location.search).get('obs')==='true',
-  isDock: new URLSearchParams(location.search).get('dock')==='true'
-};
-let rotateTimer = null;
-let CURRENT_GUID = new URLSearchParams(location.search).get('guid') || null;
-
-/* IndexedDB helpers */
-function idbOpen(){ return new Promise((res)=>{ if(!window.indexedDB) return res(null); const req = indexedDB.open('PlayJEGUEDB', 3); req.onupgradeneeded = (e)=>{ const db = e.target.result; if(!db.objectStoreNames.contains('states')) db.createObjectStore('states', { keyPath: 'guid' }); }; req.onsuccess = ()=> res(req.result); req.onerror = ()=> res(null); }); }
-async function idbPut(guid, data){ const db = await idbOpen(); if(!db) return false; return new Promise((res)=>{ const tx = db.transaction('states','readwrite'); tx.objectStore('states').put({ guid, state:data, updated:Date.now() }); tx.oncomplete = ()=>{ db.close(); res(true); }; tx.onerror = ()=>{ db.close(); res(false); }; }); }
-async function idbGet(guid){ const db = await idbOpen(); if(!db) return null; return new Promise((res)=>{ const tx = db.transaction('states','readonly'); const rq = tx.objectStore('states').get(guid); rq.onsuccess = ()=>{ db.close(); res(rq.result ? rq.result.state : null); }; rq.onerror = ()=>{ db.close(); res(null); }; }); }
-
-function generateGUID(){ return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c)=>{ const r = Math.random()*16|0; const v = c==='x' ? r : (r&0x3|0x8); return v.toString(16); }); }
-async function ensureGuidAndSave(){ if(!CURRENT_GUID){ CURRENT_GUID = generateGUID(); const url = new URL(location.href); url.searchParams.set('guid', CURRENT_GUID); window.history.replaceState({}, '', url.toString()); } await idbPut(CURRENT_GUID, state); try{ localStorage.setItem(STORAGE, JSON.stringify(state)); }catch(e){} return CURRENT_GUID; }
-
-/* Helpers */
-const $ = s=>document.querySelector(s); const $$ = s=>Array.from(document.querySelectorAll(s));
-function enabledPlatforms(){ return state.platforms.filter(p=>p.enabled); }
-function save(){ try{ localStorage.setItem(STORAGE, JSON.stringify(state)); }catch(e){} if(CURRENT_GUID){ idbPut(CURRENT_GUID, state); } }
-function setBarStyle(){ document.documentElement.style.setProperty('--bar-w', state.barW + 'px'); document.documentElement.style.setProperty('--bar-h', state.barH + 'px'); document.documentElement.style.setProperty('--bar-r', state.barR + 'px'); document.documentElement.style.setProperty('--bar-alpha', state.barAlpha); document.documentElement.style.setProperty('--glow-color', state.glowColor); document.documentElement.style.setProperty('--shadow-amt', state.shadowAmt); document.documentElement.style.setProperty('--glow-enabled', state.glow?1:0); $('#glowRing').style.display = state.glow ? 'block' : 'none'; }
-
-function renderBar(triggerBounce){
-  setBarStyle();
-  $('#deathCount').textContent = state.death;
-  $('#trophyCount').textContent = `${state.trophyCur}/${state.trophyMax}`;
-  
-  $('#dInput').value = state.death;
-  $('#tCurrent').value = state.trophyCur;
-  $('#tMax').value = state.trophyMax;
-  $('#trophyCount').textContent = `${state.trophyCur}/${state.trophyMax}`;
-
-  $('#deathGroup').style.display = state.showDeath ? 'flex' : 'none';
-  $('#trophyGroup').style.display = state.showTrophy ? 'flex' : 'none';
-  $('#divider').style.display = (state.showDeath && state.showTrophy) ? 'block' : 'none';
-
-  const ep = enabledPlatforms();
-  if(ep.length===0){ $('#barUser').textContent = 'Selecione uma plataforma…'; return; }
-  if(state.currentIndex >= ep.length) state.currentIndex = 0;
-  const p = ep[state.currentIndex];
-  $('#barUser').textContent = p.username || p.label || '@';
-
-  const logoBox = $('#logoBox');
-  if(p.iconUrl){ logoBox.innerHTML = `<img id="barLogo" alt="logo" src="${p.iconUrl}">`; }
-  else if(p.iconKey){ const fa = PLATFORM_ICONS[p.iconKey] || 'fa-regular fa-circle'; logoBox.innerHTML = `<i id="barLogoFA" class="${fa} logo-fa" aria-hidden="true"></i>`; }
-  else{ logoBox.innerHTML = `<img id="barLogo" alt="logo" src="PLAY_JEGUE_LOGO_1x1.png">`; }
-
-  const bar = $('#bar');
-  if(p.gradient){ bar.style.background = `linear-gradient(90deg, rgba(0,0,0,${state.barAlpha}), rgba(128,128,128,${state.barAlpha}))`; }
-  else{ bar.style.background = `linear-gradient(90deg, ${p.color}, #000000)`; bar.style.opacity = 1 - parseFloat(state.barAlpha||0); }
-
-  if(state.mainConsole === 'xbox'){ $('#psTrophy').classList.add('hidden'); $('#xboxGem').classList.remove('hidden'); }else{ $('#xboxGem').classList.add('hidden'); $('#psTrophy').classList.remove('hidden'); }
-
-  const skull = $('#skullIcon'); const digits = String(state.death).length;
-  skull.style.marginRight = 0; // (digits>3?4:6) + 'px'; $('#deathCount').style.minWidth = (20 + digits*8) + 'px';
-
-  if(triggerBounce && state.iconAnim){ const elIcon = logoBox.firstElementChild; if(elIcon){ elIcon.classList.remove('bounce'); void elIcon.offsetWidth; elIcon.classList.add('bounce'); } }
-}
-
-function renderPlatformLists(){
-  const list = $('#platformList'); list.innerHTML='';
-  const activeSub = $('.sub-btn.active').dataset.sub;
-  const filtered = state.platforms.filter(p=>p.category===activeSub);
-  filtered.forEach((p)=>{
-    const row = document.createElement('div'); row.className='plat-item';
-    const icon = document.createElement('div'); icon.className='plat-logo';
-    if(p.iconUrl){ icon.innerHTML = `<img src="${p.iconUrl}" style="width:28px;height:28px;object-fit:contain" />`; }
-    else if(p.iconKey){ const fa = PLATFORM_ICONS[p.iconKey] || 'fa-regular fa-circle'; icon.innerHTML = `<i class="${fa}"></i>`; }
-    else{ icon.innerHTML = `<img src="PLAY_JEGUE_LOGO_1x1.png" style="width:28px;height:28px;object-fit:contain" />`; }
-    const user = document.createElement('input'); user.type='text'; user.value=p.username||''; user.placeholder='@usuario'; user.addEventListener('change', e=>{ p.username = e.target.value.trim(); save(); renderBar(); });
-    const color = document.createElement('input'); color.type='color'; color.value = p.color||'#6c5ce7'; color.addEventListener('change', e=>{ p.color=e.target.value; save(); renderBar(); });
-    const toggle = document.createElement('div'); toggle.className='toggle ' + (p.enabled ? 'on':''); toggle.addEventListener('click', ()=>{ toggle.classList.toggle('on'); p.enabled = toggle.classList.contains('on'); save(); renderBar(true); startRotation(); });
-    row.appendChild(icon); row.appendChild(user); row.appendChild(color); row.appendChild(toggle);
-    list.appendChild(row);
-  });
-}
-
-function startRotation(){ if(rotateTimer) clearInterval(rotateTimer); if(!state.rotate) return; const sec = Math.max(1, parseInt(state.transitionSec) || 5); rotateTimer = setInterval(()=>{ const ep = enabledPlatforms(); if(ep.length<=1) return; state.currentIndex = (state.currentIndex + 1) % ep.length; save(); renderBar(true); }, sec*1000); }
-
-/* Controls */
-function bindControls(){
-  $$('.tab-btn').forEach(btn=>btn.addEventListener('click', ()=>{ $$('.tab-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); $$('.tab').forEach(t=>t.classList.remove('active')); $('#tab-'+btn.dataset.tab).classList.add('active'); state.currentTab = btn.dataset.tab; save(); }));
-  $$('.sub-btn').forEach(btn=>btn.addEventListener('click', ()=>{ $$('.sub-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); renderPlatformLists(); }));
-  $('#copySource').addEventListener('click', async ()=>{ const guid = await ensureGuidAndSave(); const url = location.origin + location.pathname + '?obs=true&guid=' + guid; navigator.clipboard.writeText(url).catch(()=>{}); alert('URL copiada com GUID: ' + guid); });
-  $('#copyDock').addEventListener('click', async ()=>{ const guid = await ensureGuidAndSave(); const url = location.origin + location.pathname + '?dock=true&guid=' + guid; navigator.clipboard.writeText(url).catch(()=>{}); alert('URL copiada com GUID: ' + guid); });
-  $('#refreshBtn').addEventListener('click', ()=> location.reload());
-  $('#exportBtn').addEventListener('click', ()=>{ const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'playjegue-widget-config.json'; a.click(); URL.revokeObjectURL(a.href); });
-  $('#importBtn').addEventListener('click', ()=>{ const inp = document.createElement('input'); inp.type='file'; inp.accept='application/json'; inp.onchange = async ()=>{ const file = inp.files[0]; if(!file) return; const txt = await file.text(); try{ const cfg = JSON.parse(txt); Object.assign(state, cfg); save(); initAfterLoad(true); }catch(e){ alert('JSON inválido'); } }; inp.click(); });
-
-  $('#addBtn').addEventListener('click', ()=>{
-    const name = $('#addName').value.trim()||'custom-'+Date.now();
-    const user = $('#addUser').value.trim()||'';
-    const color = $('#addColor').value||'#6c5ce7';
-    const iconUrl = $('#addIconUrl').value.trim()||'';
-    const p = { name, label: name, username: user, enabled:true, color, iconKey:'', iconUrl, category:'custom' };
-    state.platforms.push(p); save(); renderPlatformLists(); renderBar();
-  });
-
-  ['barW','barH','barR','barAlpha'].forEach(id=>{ $('#'+id).addEventListener('input', ()=>{ const v = (id==='barAlpha')? parseFloat($('#'+id).value).toFixed(2) : $('#'+id).value; $('#'+id+'Val').textContent = v; }); });
-  $('#shadowAmt').addEventListener('input', ()=>{ $('#shadowVal').textContent = $('#shadowAmt').value; });
-
-  $('#applyStyle').addEventListener('click', ()=>{ state.barW = parseInt($('#barW').value,10)||450; state.barH = parseInt($('#barH').value,10)||50; state.barR = parseInt($('#barR').value,10)||50; state.barAlpha = parseFloat($('#barAlpha').value)||0; state.glow = $('#toggleGlow').classList.contains('on'); state.glowColor = $('#glowColor').value; state.shadowAmt = parseFloat($('#shadowAmt').value)||0.4; state.iconAnim = $('#toggleIconAnim').classList.contains('on'); save(); renderBar(); startRotation(); });
-  $('#defaultStyle').addEventListener('click', ()=>{ state.barW=450; state.barH=50; state.barR=50; state.barAlpha=0; state.glow=false; state.glowColor='#6c5ce7'; state.shadowAmt=0.4; state.iconAnim=true; $('#barW').value=450; $('#barH').value=50; $('#barR').value=50; $('#barAlpha').value=0; $('#barWVal').textContent=450; $('#barHVal').textContent=50; $('#barRVal').textContent=50; $('#barAlphaVal').textContent=0; $('#toggleGlow').classList.remove('on'); $('#glowColor').value='#6c5ce7'; $('#shadowAmt').value=0.4; $('#shadowVal').textContent=0.4; $('#toggleIconAnim').classList.add('on'); save(); renderBar(); });
-
-  $('#toggleGlow').addEventListener('click', (e)=>{ e.currentTarget.classList.toggle('on'); state.glow = e.currentTarget.classList.contains('on'); save(); renderBar(); });
-  $('#toggleIconAnim').addEventListener('click', (e)=>{ e.currentTarget.classList.toggle('on'); state.iconAnim = e.currentTarget.classList.contains('on'); save(); });
-
-  $('#dPlus').addEventListener('click', ()=>{ state.death = Math.min(9999, state.death+1); save(); renderBar(); });
-  $('#dMinus').addEventListener('click', ()=>{ state.death = Math.max(0, state.death-1); save(); renderBar(); });
-  $('#dReset').addEventListener('click', ()=>{ state.death = 0; save(); renderBar(); });
-  $('#dInput').addEventListener('change', e=>{ state.death = Math.max(0, Math.min(9999, parseInt(e.target.value)||0)); save(); renderBar(); });
-
-  $('#tPlus').addEventListener('click', ()=>{ state.trophyCur = Math.min(99, state.trophyCur+1); if(state.trophyCur>state.trophyMax) state.trophyCur = state.trophyMax; save(); renderBar(); });
-  $('#tMinus').addEventListener('click', ()=>{ state.trophyCur = Math.max(0, state.trophyCur-1); save(); renderBar(); });
-  $('#mPlus').addEventListener('click', ()=>{ state.trophyMax = Math.min(99, state.trophyMax+1); save(); renderBar(); });
-  $('#mMinus').addEventListener('click', ()=>{ state.trophyMax = Math.max(1, state.trophyMax-1); if(state.trophyCur>state.trophyMax) state.trophyCur = state.trophyMax; save(); renderBar(); });
-  $('#tReset').addEventListener('click', ()=>{ state.trophyCur=0; state.trophyMax=1; save(); renderBar(); });
-  $('#tCurrent').addEventListener('change', e=>{ state.trophyCur = Math.max(0, Math.min(99, parseInt(e.target.value)||0)); if(state.trophyCur>state.trophyMax) state.trophyCur = state.trophyMax; save(); renderBar(); });
-  $('#tMax').addEventListener('change', e=>{ state.trophyMax = Math.max(1, Math.min(99, parseInt(e.target.value)||1)); if(state.trophyCur>state.trophyMax) state.trophyCur = state.trophyMax; save(); renderBar(); });
-
-  $('#toggleDeath').addEventListener('click', e=>{ e.currentTarget.classList.toggle('on'); state.showDeath = e.currentTarget.classList.contains('on'); save(); renderBar(); });
-  $('#toggleTrophy').addEventListener('click', e=>{ e.currentTarget.classList.toggle('on'); state.showTrophy = e.currentTarget.classList.contains('on'); save(); renderBar(); });
-
-  $('#mainConsole').addEventListener('change', (e)=>{ state.mainConsole = e.target.value; save(); renderBar(); });
-  $('#language').addEventListener('change', (e)=>{ state.lang = e.target.value; save(); applyI18n(); });
-
-  document.addEventListener('keydown', e=>{ if(!(e.ctrlKey||e.metaKey)) return; if(e.shiftKey){ if(e.key === ']'){ e.preventDefault(); state.death = Math.min(9999, state.death+1); save(); renderBar(); } if(e.key === '\\'){ e.preventDefault(); state.death = 0; save(); renderBar(); } }else{ if(e.key === '['){ e.preventDefault(); state.trophyCur = Math.min(99, state.trophyCur+1); if(state.trophyCur>state.trophyMax) state.trophyCur = state.trophyMax; save(); renderBar(); } if(e.key === ']'){ e.preventDefault(); state.trophyMax = Math.min(99, state.trophyMax+1); save(); renderBar(); } if(e.key === '\\'){ e.preventDefault(); state.trophyCur = 0; state.trophyMax = 1; save(); renderBar(); } } });
-}
-
-/* i18n visuals */
-function applyI18n(){ const t = I18N[state.lang] || I18N['pt-BR']; $('#lblLang').textContent = t.Idioma; const map = {contadores: t.Contadores, plataformas: t.Plataformas, instrucoes: t.Instrucoes, geral: t.Geral}; $$('.tab-btn').forEach(b=> b.textContent = map[b.dataset.tab]); $('#language').value = state.lang; }
-
-function initAfterLoad(skipTabRestore){
-  $('#barW').value = state.barW; $('#barH').value = state.barH; $('#barR').value = state.barR; $('#barAlpha').value = state.barAlpha;
-  $('#barWVal').textContent = state.barW; $('#barHVal').textContent = state.barH; $('#barRVal').textContent = state.barR; $('#barAlphaVal').textContent = state.barAlpha;
-  if(state.glow) $('#toggleGlow').classList.add('on'); else $('#toggleGlow').classList.remove('on');
-  $('#glowColor').value = state.glowColor || '#6c5ce7';
-  $('#shadowAmt').value = state.shadowAmt || 0.4;
-  $('#shadowVal').textContent = state.shadowAmt || 0.4;
-  if(state.iconAnim) $('#toggleIconAnim').classList.add('on'); else $('#toggleIconAnim').classList.remove('on');
-
-  applyI18n();
-  renderPlatformLists();
-  renderBar();
-  bindControls();
-  startRotation();
-  if(!skipTabRestore && state.currentTab){ const btn = document.querySelector('.tab-btn[data-tab="'+state.currentTab+'"]'); if(btn) btn.click(); }
-  if(state.isObs) document.getElementById('panel').style.display='none';
-  document.getElementById('year').textContent = new Date().getFullYear();
-}
-
-/* Icons map */
-const PLATFORM_ICONS = { youtube: 'fa-brands fa-youtube', twitch: 'fa-brands fa-twitch', kick: 'fa-brands fa-kickstarter-k', instagram: 'fa-brands fa-instagram', tiktok: 'fa-brands fa-tiktok', discord: 'fa-brands fa-discord', playstation: 'fa-brands fa-playstation', xbox: 'fa-brands fa-xbox' };
-
-/* Start */
-document.addEventListener('DOMContentLoaded', async ()=>{ try{ const raw = localStorage.getItem(STORAGE); if(raw) Object.assign(state, JSON.parse(raw)); }catch(e){} if(!Array.isArray(state.platforms) || state.platforms.length===0) state.platforms = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS)); initAfterLoad(); });
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
 </body>
 </html>
