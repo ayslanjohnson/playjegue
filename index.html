@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PlayJEGUE Stream Bar • Widget</title>
+<!-- Font Awesome Free CDN -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="" crossorigin="anonymous">
+<style>
+  :root{
+    --bar-w: 560px;
+    --bar-h: 64px;
+    --bar-r: 24px;
+    --bar-alpha: 1;
+    --bg:#0e0f11;
+    --card:#141518;
+    --text:#f6f7f8;
+    --muted:#b9bcc6;
+    --accent:#6c5ce7;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;padding:18px;background:var(--bg);color:var(--text);font-family:Inter,Segoe UI,Roboto,system-ui,-apple-system}
+  .wrap{display:flex;justify-content:center;margin-bottom:16px}
+  .stream-bar{
+    width:var(--bar-w);
+    height:var(--bar-h);
+    border-radius:var(--bar-r);
+    display:flex;align-items:center;gap:12px;padding:0 12px;
+    background: linear-gradient(90deg, rgba(0,0,0,var(--bar-alpha)), rgba(90,90,90,var(--bar-alpha)));
+    overflow:visible;position:relative;
+    box-shadow:0 18px 40px rgba(0,0,0,.35);
+  }
+  .logo-box{width:48px;height:48px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.05);overflow:hidden;flex:0 0 auto}
+  .logo-box img{width:36px;height:36px;object-fit:contain}
+  .user{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .counters{margin-left:auto;display:flex;align-items:center;gap:14px}
+  .counter{font-weight:900;font-size:16px;min-width:40px;text-align:right}
+  .divider{width:1px;height:28px;background:rgba(255,255,255,.22)}
+  .fa-fw{width:20px;text-align:center}
+  .hidden{display:none !important}
+
+  /* Panel */
+  .panel{max-width:1000px;margin:0 auto;background:var(--card);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
+  .top-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .btn{padding:8px 10px;border-radius:8px;background:#23262d;border:1px solid #2b2f38;color:#fff;cursor:pointer;font-weight:800}
+  .btn.small{padding:6px 8px;font-size:13px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab-btn{background:transparent;border:1px solid #2b2f38;color:#ddd;padding:8px 10px;border-radius:8px;cursor:pointer;font-weight:700}
+  .tab-btn.active{background:#20232b;color:#fff;outline:2px solid rgba(124,58,237,.18)}
+  .tab{display:none}
+  .tab.active{display:block}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+  input[type="text"],input[type="number"],input[type="url"],select{background:#0f1117;border:1px solid #2b2f38;padding:8px;border-radius:8px;color:#fff}
+  input[type="color"]{border:0;background:transparent;width:40px;height:34px}
+  .toggle{width:44px;height:26px;border-radius:999px;background:#2b2f38;position:relative;cursor:pointer}
+  .toggle:after{content:"";position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#9aa0ac;transition:transform .18s ease}
+  .toggle.on{background:#37c976}
+  .toggle.on:after{transform:translateX(18px);background:#fff}
+  .card{background:#0f1117;border-radius:10px;padding:10px;border:1px solid #2b2f38}
+  .platform-list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow:auto}
+  .plat-item{display:grid;grid-template-columns:40px 1fr auto auto;align-items:center;gap:10px;padding:8px;border-radius:8px;background:#0c0e13;border:1px solid #2b2f38}
+  .plat-logo{display:grid;place-items:center}
+  .subtabs{display:flex;gap:6px;margin:8px 0}
+  .sub-btn{background:#10131a;border:1px solid #2b2f38;color:#bbb;padding:6px 8px;border-radius:8px;cursor:pointer}
+  .sub-btn.active{background:#171b23;color:#fff}
+
+  footer{opacity:.8;text-align:center;font-size:12px;margin-top:10px}
+  footer a{color:#7aa2ff;text-decoration:none}
+  .lang{margin-right:auto}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="bar" class="stream-bar">
+      <div class="logo-box"><img id="barLogo" alt="logo" src="PLAY_JEGUE_LOGO_1x1.png"></div>
+      <div id="barUser" class="user">@PlayJEGUE</div>
+      <div class="counters">
+        <div id="deathGroup" class="row">
+          <i class="fa-solid fa-skull fa-fw" aria-hidden="true"></i>
+          <div id="deathCount" class="counter">0</div>
+        </div>
+        <div id="divider" class="divider"></div>
+        <div id="trophyGroup" class="row">
+          <img id="psTrophy" class="" src="trofeu.png" alt="trophy" style="width:22px;height:22px;object-fit:contain">
+          <i id="xboxGem" class="fa-regular fa-gem fa-fw hidden" aria-hidden="true"></i>
+          <div id="trophyCount" class="counter">0/1</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel">
+    <div class="row top-actions">
+      <div class="lang">
+        <label id="lblLang">Idioma</label>
+        <select id="language">
+          <option value="pt-BR">PT-BR</option>
+          <option value="en">EN</option>
+        </select>
+      </div>
+      <button id="copySource" class="btn">Copiar URL Source</button>
+      <button id="copyDock" class="btn">Copiar URL Dock</button>
+      <button id="exportBtn" class="btn">Exportar JSON</button>
+      <button id="importBtn" class="btn">Importar JSON</button>
+      <button id="refreshBtn" class="btn">Atualizar</button>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="geral">Geral</button>
+      <button class="tab-btn" data-tab="contadores">Contadores</button>
+      <button class="tab-btn" data-tab="plataformas">Plataformas</button>
+      <button class="tab-btn" data-tab="instrucoes">Instruções</button>
+    </div>
+
+    <!-- GERAL -->
+    <div id="tab-geral" class="tab active">
+      <div class="card">
+        <label id="lblMainPlatform">Plataforma principal de console</label>
+        <select id="mainConsole">
+          <option value="playstation">PlayStation</option>
+          <option value="xbox">Xbox</option>
+        </select>
+      </div>
+      <div class="card">
+        <label id="lblBarProps">Propriedades da barra</label>
+        <div class="row">
+          <span>Largura</span><input id="barW" type="number" min="240" max="2000" value="560">
+          <span>Altura</span><input id="barH" type="number" min="40" max="200" value="64">
+          <span>Cantos</span><input id="barR" type="number" min="0" max="64" value="24">
+          <span>Transparência</span><input id="barAlpha" type="number" step="0.05" min="0" max="1" value="1">
+          <button id="applyStyle" class="btn small">Aplicar</button>
+          <button id="defaultStyle" class="btn small">Padrão</button>
+        </div>
+      </div>
+      <div class="card">
+        <label>Efeitos</label>
+        <div class="row" style="gap:18px">
+          <div style="display:flex;align-items:center;gap:8px"><div id="toggleRotation" class="toggle on"></div><span>Rotacionar Plataformas</span></div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span>Transição (s)</span><input id="transitionSeconds" type="number" min="1" max="60" value="5">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTADORES -->
+    <div id="tab-contadores" class="tab">
+      <div class="card">
+        <label>Mortes</label>
+        <div class="row">
+          <button class="btn small" id="dMinus">-</button>
+          <input id="dInput" class="small" type="number" min="0" value="0" style="width:80px"/>
+          <button class="btn small" id="dPlus">+</button>
+          <button class="btn small" id="dReset">Zerar</button>
+          <div style="width:10px"></div>
+          <div class="toggle on" id="toggleDeath"></div><label style="margin-left:6px">Mostrar Mortes</label>
+        </div>
+      </div>
+      <div class="card" style="margin-top:8px">
+        <label>Troféus (Atual / Platina)</label>
+        <div class="row" style="align-items:center">
+          <button class="btn small" id="tMinus">-</button>
+          <input id="tCurrent" class="small" type="number" min="0" value="0" style="width:70px"/>
+          <button class="btn small" id="tPlus">+</button>
+          <div style="width:8px"></div>
+          <button class="btn small" id="mMinus">-</button>
+          <input id="tMax" class="small" type="number" min="1" value="1" style="width:70px"/>
+          <button class="btn small" id="mPlus">+</button>
+          <button class="btn small" id="tReset">Zerar</button>
+          <div style="width:10px"></div>
+          <div class="toggle on" id="toggleTrophy"></div><label style="margin-left:6px">Mostrar Troféus</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- PLATAFORMAS -->
+    <div id="tab-plataformas" class="tab">
+      <div class="card">
+        <label>Usuário global (aplica na sub-aba ativa)</label>
+        <div class="row">
+          <input id="globalUser" type="text" placeholder="@usuario"/>
+          <button id="applyAll" class="btn">Aplicar</button>
+        </div>
+
+        <div class="subtabs">
+          <button class="sub-btn active" data-sub="principais">Principais</button>
+          <button class="sub-btn" data-sub="consoles">Consoles</button>
+          <button class="sub-btn" data-sub="redes">Redes</button>
+          <button class="sub-btn" data-sub="custom">Custom</button>
+        </div>
+
+        <div class="platform-list" id="platformList"></div>
+      </div>
+
+      <div class="card" style="margin-top:10px">
+        <label>Adicionar plataforma</label>
+        <div class="row">
+          <input id="addName" type="text" placeholder="Nome (ex: CustomTV)"/>
+          <input id="addUser" type="text" placeholder="@usuario (opcional)"/>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <input id="addColor" type="color" value="#6c5ce7"/>
+          <input id="addIconUrl" type="url" placeholder="URL do ícone (opcional)"/>
+          <button id="addBtn" class="btn">+ Adicionar</button>
+        </div>
+        <small style="display:block;margin-top:6px;color:var(--muted)">Crie plataformas personalizadas; se fornecer URL de ícone, ele será utilizado.</small>
+      </div>
+    </div>
+
+    <!-- INSTRUÇÕES -->
+    <div id="tab-instrucoes" class="tab">
+      <div class="card">
+        <label>OBS</label>
+        <div style="color:var(--muted)">
+          Use como Browser Source com <code>?obs=true</code> ou como Dock com <code>?dock=true</code>.<br/>
+          Recomendações de tamanho no OBS (Source): defina <strong>Largura</strong> para o mesmo valor configurado na aba Geral e <strong>Altura</strong> igual à altura da barra + ~10px de margem. Ex.: largura 560 e altura 74.<br/>
+          Ao copiar a URL o sistema gera um <strong>GUID</strong> e persiste o estado localmente (IndexedDB) — a URL copiada contém <code>&guid=</code>.
+        </div>
+      </div>
+      <div class="card" style="margin-top:8px">
+        <label>Atalhos</label>
+        <div style="color:var(--muted)">
+          <div><strong>Troféus</strong>: CTRL/CMD + [ (atual), CTRL/CMD + ] (platina), CTRL/CMD + \ (reset)</div>
+          <div><strong>Mortes</strong>: CTRL/CMD + SHIFT + ] (incrementa), CTRL/CMD + SHIFT + \ (reset)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div>Widget PlayJEGUE — Propriedades: Widget URL <a href="https://playjegue.vercel.app" target="_blank">playjegue.vercel.app</a> • YouTube <a href="https://youtube.com/@playjegue" target="_blank">youtube.com/@playjegue</a></div>
+    <div>&copy; <span id="year"></span> PlayJEGUE — Código desta página licenciado para PlayJEGUE.</div>
+  </footer>
+
+<script>
+/* === i18n minimal (PT/EN) === */
+const I18N = {
+  "pt-BR": {
+    Idioma: "Idioma",
+    Geral: "Geral", Contadores: "Contadores", Plataformas: "Plataformas", Instrucoes: "Instruções",
+    PlataformaPrincipal: "Plataforma principal de console",
+    PropsBarra: "Propriedades da barra"
+  },
+  "en": {
+    Idioma: "Language",
+    Geral: "General", Contadores: "Counters", Plataformas: "Platforms", Instrucoes: "Instructions",
+    PlataformaPrincipal: "Main console platform",
+    PropsBarra: "Bar properties"
+  }
+};
+
+/* ===== ICONS via FontAwesome (classes) ===== */
+const PLATFORM_ICONS = {
+  youtube: 'fa-brands fa-youtube',
+  twitch: 'fa-brands fa-twitch',
+  kick: 'fa-solid fa-k',
+  instagram: 'fa-brands fa-instagram',
+  tiktok: 'fa-brands fa-tiktok',
+  discord: 'fa-brands fa-discord',
+  playstation: 'fa-brands fa-playstation',
+  xbox: 'fa-brands fa-xbox',
+};
+
+/* ===== DEFAULTS & STATE ===== */
+const STORAGE = 'playjegue_stream_state_v4';
+const DEFAULT_PLATFORMS = [
+  {name:'youtube', label:'YouTube', username:'', enabled:false, type:'official', color:'#ff0000', iconKey:'youtube', iconUrl:'', category:'principais'},
+  {name:'twitch', label:'Twitch', username:'', enabled:false, type:'official', color:'#9146ff', iconKey:'twitch', iconUrl:'', category:'principais'},
+  {name:'kick', label:'Kick', username:'', enabled:false, type:'official', color:'#53fc18', iconKey:'kick', iconUrl:'', category:'principais'},
+  {name:'instagram', label:'Instagram', username:'', enabled:false, type:'official', color:'#e1306c', iconKey:'instagram', iconUrl:'', category:'redes'},
+  {name:'tiktok', label:'TikTok', username:'', enabled:false, type:'official', color:'#ff0050', iconKey:'tiktok', iconUrl:'', category:'redes'},
+  {name:'discord', label:'Discord', username:'', enabled:false, type:'official', color:'#7289da', iconKey:'discord', iconUrl:'', category:'redes'},
+  {name:'playstation', label:'PlayStation', username:'', enabled:false, type:'official', color:'#0070d1', iconKey:'playstation', iconUrl:'', category:'consoles'},
+  {name:'xbox', label:'Xbox', username:'', enabled:false, type:'official', color:'#107c10', iconKey:'xbox', iconUrl:'', category:'consoles'},
+  {name:'custom', label:'CUSTOM', username:'@PlayJEGUE', enabled:true, type:'custom', color:'#000000', iconKey:'', iconUrl:'PLAY_JEGUE_LOGO_1x1.png', category:'custom',
+   gradient:true, gradientFrom:'#000000', gradientTo:'#808080'}
+];
+
+let state = {
+  death:0, showDeath:true,
+  trophyCur:0, trophyMax:1, showTrophy:true,
+  platforms: [], currentIndex: 0,
+  rotate:true, transitionSec:5,
+  barW: 560, barH: 64, barR:24, barAlpha: 1,
+  mainConsole: 'playstation',
+  lang: 'pt-BR',
+  currentTab: 'geral',
+  isObs: new URLSearchParams(location.search).get('obs')==='true',
+  isDock: new URLSearchParams(location.search).get('dock')==='true'
+};
+
+let rotateTimer = null;
+let CURRENT_GUID = new URLSearchParams(location.search).get('guid') || null;
+
+/* ===== IndexedDB helpers ===== */
+function idbOpen(){
+  return new Promise((res)=>{
+    if(!window.indexedDB) return res(null);
+    const req = indexedDB.open('PlayJEGUEDB', 2);
+    req.onupgradeneeded = (e)=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains('states')) db.createObjectStore('states', { keyPath: 'guid' });
+    };
+    req.onsuccess = ()=> res(req.result);
+    req.onerror = ()=> res(null);
+  });
+}
+async function idbPut(guid, data){
+  const db = await idbOpen(); if(!db) return false;
+  return new Promise((res)=>{
+    const tx = db.transaction('states','readwrite');
+    tx.objectStore('states').put({ guid, state:data, updated:Date.now() });
+    tx.oncomplete = ()=>{ db.close(); res(true); };
+    tx.onerror = ()=>{ db.close(); res(false); };
+  });
+}
+async function idbGet(guid){
+  const db = await idbOpen(); if(!db) return null;
+  return new Promise((res)=>{
+    const tx = db.transaction('states','readonly');
+    const rq = tx.objectStore('states').get(guid);
+    rq.onsuccess = ()=>{ db.close(); res(rq.result ? rq.result.state : null); };
+    rq.onerror = ()=>{ db.close(); res(null); };
+  });
+}
+
+/* ===== GUID ===== */
+function generateGUID(){
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c)=>{
+    const r = Math.random()*16|0; const v = c==='x' ? r : (r&0x3|0x8);
+    return v.toString(16);
+  });
+}
+async function ensureGuidAndSave(){
+  if(!CURRENT_GUID){
+    CURRENT_GUID = generateGUID();
+    const url = new URL(location.href);
+    url.searchParams.set('guid', CURRENT_GUID);
+    window.history.replaceState({}, '', url.toString());
+  }
+  await idbPut(CURRENT_GUID, state);
+  try{ localStorage.setItem(STORAGE, JSON.stringify(state)); }catch(e){}
+  return CURRENT_GUID;
+}
+
+/* ===== Load ===== */
+async function loadInitial(){
+  try{
+    if(CURRENT_GUID){
+      const dat = await idbGet(CURRENT_GUID);
+      if(dat) Object.assign(state, dat);
+    }else{
+      const raw = localStorage.getItem(STORAGE);
+      if(raw) Object.assign(state, JSON.parse(raw));
+    }
+  }catch(e){}
+  if(!Array.isArray(state.platforms) || state.platforms.length===0){
+    state.platforms = JSON.parse(JSON.stringify(DEFAULT_PLATFORMS));
+  }
+}
+
+/* ===== Helpers ===== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+function enabledPlatforms(){ return state.platforms.filter(p=>p.enabled); }
+function save(){ try{ localStorage.setItem(STORAGE, JSON.stringify(state)); }catch(e){} if(CURRENT_GUID){ idbPut(CURRENT_GUID, state); } }
+function setBarStyle(){
+  document.documentElement.style.setProperty('--bar-w', state.barW + 'px');
+  document.documentElement.style.setProperty('--bar-h', state.barH + 'px');
+  document.documentElement.style.setProperty('--bar-r', state.barR + 'px');
+  document.documentElement.style.setProperty('--bar-alpha', state.barAlpha);
+  // if current platform is custom with gradient
+  const p = enabledPlatforms()[state.currentIndex] || enabledPlatforms()[0];
+  const bar = $('#bar');
+  if(p && p.gradient){
+    bar.style.background = `linear-gradient(90deg, rgba(0,0,0,${state.barAlpha}), rgba(128,128,128,${state.barAlpha}))`;
+  }
+}
+
+/* ===== Render ===== */
+function renderBar(){
+  setBarStyle();
+  $('#deathCount').textContent = state.death;
+  $('#trophyCount').textContent = `${state.trophyCur}/${state.trophyMax}`;
+  $('#deathGroup').style.display = state.showDeath ? 'flex' : 'none';
+  $('#trophyGroup').style.display = state.showTrophy ? 'flex' : 'none';
+  $('#divider').style.display = (state.showDeath && state.showTrophy) ? 'block' : 'none';
+
+  const ep = enabledPlatforms();
+  if(ep.length===0){
+    $('#barUser').textContent = 'Selecione uma plataforma…';
+    return;
+  }
+  if(state.currentIndex >= ep.length) state.currentIndex = 0;
+  const p = ep[state.currentIndex];
+
+  $('#barUser').textContent = p.username || p.label || '@';
+
+  if(p.iconUrl){
+    $('#barLogo').src = p.iconUrl;
+  }else if(PLATFORM_ICONS[p.iconKey]){
+    // fallback to text icon for FA (render over image tag by swapping to data uri)
+    const icon = document.createElement('i');
+    icon.className = PLATFORM_ICONS[p.iconKey] + ' fa-fw';
+  }
+
+  const bar = $('#bar');
+  if(p.gradient){
+    bar.style.background = `linear-gradient(90deg, rgba(0,0,0,${state.barAlpha}), rgba(128,128,128,${state.barAlpha}))`;
+  }else{
+    bar.style.background = `linear-gradient(90deg, ${p.color}, #000000)`;
+    bar.style.opacity = state.barAlpha;
+  }
+
+  // Trophy icon change by main console
+  if(state.mainConsole === 'xbox'){
+    $('#psTrophy').classList.add('hidden');
+    $('#xboxGem').classList.remove('hidden');
+  }else{
+    $('#xboxGem').classList.add('hidden');
+    $('#psTrophy').classList.remove('hidden');
+  }
+}
+
+function renderPlatformLists(){
+  const list = $('#platformList');
+  list.innerHTML = '';
+  const activeSub = $('.sub-btn.active').dataset.sub;
+  const filtered = state.platforms.filter(p=>p.category===activeSub);
+  filtered.forEach((p)=>{
+    const idxGlobal = state.platforms.indexOf(p);
+    const row = document.createElement('div');
+    row.className = 'plat-item';
+    const icon = document.createElement('div');
+    icon.className = 'plat-logo';
+    if(p.iconUrl){
+      icon.innerHTML = `<img src="${p.iconUrl}" style="width:28px;height:28px;object-fit:contain" />`;
+    }else{
+      icon.innerHTML = `<i class="${PLATFORM_ICONS[p.iconKey]||'fa-regular fa-circle'}"></i>`;
+    }
+    const user = document.createElement('input');
+    user.type = 'text'; user.value = p.username||''; user.placeholder='@usuario'; user.className='plat-username';
+    user.addEventListener('change', e=>{ p.username = e.target.value.trim(); save(); renderBar(); });
+    const color = document.createElement('input');
+    color.type='color'; color.value = p.color||'#6c5ce7';
+    color.addEventListener('change', e=>{ p.color=e.target.value; save(); renderBar(); });
+    const toggle = document.createElement('div');
+    toggle.className = 'toggle ' + (p.enabled ? 'on':'');
+    toggle.title='Ativar/Desativar';
+    toggle.addEventListener('click', ()=>{ toggle.classList.toggle('on'); p.enabled = toggle.classList.contains('on'); save(); renderBar(); startRotation(); });
+    // NO REMOVE button (per requirement)
+    row.appendChild(icon); row.appendChild(user); row.appendChild(color); row.appendChild(toggle);
+    list.appendChild(row);
+  });
+}
+
+function startRotation(){
+  if(rotateTimer) clearInterval(rotateTimer);
+  if(!state.rotate) return;
+  const sec = Math.max(1, parseInt(state.transitionSec) || 5);
+  rotateTimer = setInterval(()=>{
+    const ep = enabledPlatforms();
+    if(ep.length<=1) return;
+    state.currentIndex = (state.currentIndex + 1) % ep.length;
+    save(); renderBar();
+  }, sec*1000);
+}
+
+/* ===== Controls ===== */
+function bindControls(){
+  // tabs with persistence
+  $$('.tab-btn').forEach(btn=>btn.addEventListener('click', ()=>{
+    $$('.tab-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    $$('.tab').forEach(t=>t.classList.remove('active'));
+    $('#tab-'+btn.dataset.tab).classList.add('active');
+    state.currentTab = btn.dataset.tab; save();
+  }));
+
+  // sub-tabs
+  $$('.sub-btn').forEach(btn=>btn.addEventListener('click', ()=>{
+    $$('.sub-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    renderPlatformLists();
+  }));
+
+  // URL copy always visible
+  $('#copySource').addEventListener('click', async ()=>{
+    const guid = await ensureGuidAndSave();
+    const url = location.origin + location.pathname + '?obs=true&guid=' + guid;
+    navigator.clipboard.writeText(url).catch(()=>{});
+    alert('URL copiada com GUID: ' + guid);
+  });
+  $('#copyDock').addEventListener('click', async ()=>{
+    const guid = await ensureGuidAndSave();
+    const url = location.origin + location.pathname + '?dock=true&guid=' + guid;
+    navigator.clipboard.writeText(url).catch(()=>{});
+    alert('URL copiada com GUID: ' + guid);
+  });
+  $('#refreshBtn').addEventListener('click', ()=> location.reload());
+
+  // export/import
+  $('#exportBtn').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(state, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'playjegue-widget-config.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+  $('#importBtn').addEventListener('click', ()=>{
+    const inp = document.createElement('input');
+    inp.type = 'file'; inp.accept = 'application/json';
+    inp.onchange = async () => {
+      const file = inp.files[0]; if(!file) return;
+      const txt = await file.text();
+      try{
+        const cfg = JSON.parse(txt);
+        Object.assign(state, cfg);
+        save(); initAfterLoad(true);
+      }catch(e){ alert('JSON inválido'); }
+    };
+    inp.click();
+  });
+
+  // general props
+  $('#applyStyle').addEventListener('click', ()=>{
+    state.barW = Math.max(240, Math.min(2000, parseInt($('#barW').value)||560));
+    state.barH = Math.max(40, Math.min(200, parseInt($('#barH').value)||64));
+    state.barR = Math.max(0, Math.min(64, parseInt($('#barR').value)||24));
+    state.barAlpha = Math.max(0, Math.min(1, parseFloat($('#barAlpha').value)||1));
+    save(); renderBar();
+  });
+  $('#defaultStyle').addEventListener('click', ()=>{
+    state.barW=560; state.barH=64; state.barR=24; state.barAlpha=1;
+    $('#barW').value=560; $('#barH').value=64; $('#barR').value=24; $('#barAlpha').value=1;
+    save(); renderBar();
+  });
+
+  // Rotation controls
+  $('#toggleRotation').addEventListener('click', (e)=>{
+    e.currentTarget.classList.toggle('on');
+    state.rotate = e.currentTarget.classList.contains('on'); save();
+    startRotation();
+  });
+  $('#transitionSeconds').addEventListener('change', ()=>{
+    const v = parseInt($('#transitionSeconds').value,10) || 5;
+    state.transitionSec = Math.max(1, Math.min(60, v));
+    save(); startRotation();
+  });
+
+  // Counters
+  $('#dPlus').addEventListener('click', ()=>{ state.death = Math.min(999, state.death+1); save(); renderBar(); });
+  $('#dMinus').addEventListener('click', ()=>{ state.death = Math.max(0, state.death-1); save(); renderBar(); });
+  $('#dReset').addEventListener('click', ()=>{ state.death = 0; save(); renderBar(); });
+  $('#dInput').addEventListener('change', e=>{ state.death = Math.max(0, Math.min(999, parseInt(e.target.value)||0)); save(); renderBar(); });
+
+  $('#tPlus').addEventListener('click', ()=>{ state.trophyCur = Math.min(99, state.trophyCur+1); if(state.trophyCur>state.trophyMax) state.trophyCur = state.trophyMax; save(); renderBar(); });
+  $('#tMinus').addEventListener('click', ()=>{ state.trophyCur = Math.max(0, state.trophyCur-1); save(); renderBar(); });
+  $('#mPlus').addEventListener('click', ()=>{ state.trophyMax = Math.min(99, state.trophyMax+1); save(); renderBar(); });
+  $('#mMinus').addEventListener('click', ()=>{ state.trophyMax = Math.max(1, state.trophyMax-1); if(state.trophyCur>state.trophyMax) state.trophyCur = state.trophyMax; save(); renderBar(); });
+  $('#tReset').addEventListener('click', ()=>{ state.trophyCur=0; state.trophyMax=1; save(); renderBar(); });
+  $('#tCurrent').addEventListener('change', e=>{ state.trophyCur = Math.max(0, Math.min(99, parseInt(e.target.value)||0)); if(state.trophyCur>state.trophyMax) state.trophyCur = state.trophyMax; save(); renderBar(); });
+  $('#tMax').addEventListener('change', e=>{ state.trophyMax = Math.max(1, Math.min(99, parseInt(e.target.value)||1)); if(state.trophyCur>state.trophyMax) state.trophyCur = state.trophyMax; save(); renderBar(); });
+
+  $('#toggleDeath').addEventListener('click', e=>{ e.currentTarget.classList.toggle('on'); state.showDeath = e.currentTarget.classList.contains('on'); save(); renderBar(); });
+  $('#toggleTrophy').addEventListener('click', e=>{ e.currentTarget.classList.toggle('on'); state.showTrophy = e.currentTarget.classList.contains('on'); save(); renderBar(); });
+
+  // main console
+  $('#mainConsole').addEventListener('change', (e)=>{
+    state.mainConsole = e.target.value; save(); renderBar();
+  });
+
+  // language
+  $('#language').addEventListener('change', (e)=>{
+    state.lang = e.target.value; save(); applyI18n();
+  });
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', e=>{
+    if(!(e.ctrlKey||e.metaKey)) return;
+    if(e.shiftKey){
+      if(e.key === ']'){ e.preventDefault(); state.death = Math.min(999, state.death+1); save(); renderBar(); }
+      if(e.key === '\\'){ e.preventDefault(); state.death = 0; save(); renderBar(); }
+    }else{
+      if(e.key === '['){ e.preventDefault(); state.trophyCur = Math.min(99, state.trophyCur+1); if(state.trophyCur>state.trophyMax) state.trophyCur = state.trophyMax; save(); renderBar(); }
+      if(e.key === ']'){ e.preventDefault(); state.trophyMax = Math.min(99, state.trophyMax+1); save(); renderBar(); }
+      if(e.key === '\\'){ e.preventDefault(); state.trophyCur = 0; state.trophyMax = 1; save(); renderBar(); }
+    }
+  });
+}
+
+function applyI18n(){
+  const t = I18N[state.lang] || I18N['pt-BR'];
+  $('#lblLang').textContent = t.Idioma;
+  // tab labels
+  const map = {geral: t.Geral, contadores: t.Contadores, plataformas: t.Plataformas, instrucoes: t.Instrucoes};
+  $$('.tab-btn').forEach(b=> b.textContent = map[b.dataset.tab]);
+  $('#lblMainPlatform').textContent = t.PlataformaPrincipal;
+  $('#lblBarProps').textContent = t.PropsBarra;
+  $('#language').value = state.lang;
+}
+
+/* ===== Init ===== */
+function initAfterLoad(skipTabRestore){
+  // populate default values to inputs
+  $('#barW').value = state.barW; $('#barH').value = state.barH; $('#barR').value = state.barR; $('#barAlpha').value = state.barAlpha;
+  $('#transitionSeconds').value = state.transitionSec || 5;
+  $('#mainConsole').value = state.mainConsole || 'playstation';
+  $('#language').value = state.lang || 'pt-BR';
+  applyI18n();
+  renderPlatformLists();
+  renderBar();
+  bindControls();
+  startRotation();
+  // keep current tab
+  if(!skipTabRestore && state.currentTab){
+    const btn = document.querySelector('.tab-btn[data-tab="'+state.currentTab+'"]'); if(btn) btn.click();
+  }
+  if(state.isObs) document.getElementById('panel').style.display='none';
+  document.getElementById('year').textContent = new Date().getFullYear();
+}
+
+document.addEventListener('DOMContentLoaded', async ()=>{
+  await loadInitial();
+  initAfterLoad();
+});
+</script>
+</body>
+</html>
