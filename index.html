@@ -1,1560 +1,530 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PlayJEGUE Stream Bar</title>
-    
-    <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            background: #1a1a1a;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-
-        .stream-bar {
-            width: 100%;
-            max-width: 420px;
-            min-width: 280px;
-            height: 50px;
-            border-radius: 25px;
-            display: flex;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            transition: background 0.8s ease-in-out;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .stream-bar.youtube {
-            background: linear-gradient(90deg, #ff0000 0%, #cc0000 100%);
-        }
-
-        .stream-bar.instagram {
-            background: linear-gradient(90deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-        }
-
-        .stream-bar.twitch {
-            background: linear-gradient(90deg, #9146ff 0%, #7c3aed 100%);
-        }
-
-        .stream-bar.tiktok {
-            background: linear-gradient(90deg, #ff0050 0%, #e6004a 100%);
-        }
-
-        .stream-bar.discord {
-            background: linear-gradient(90deg, #7289da 0%, #677bc4 100%);
-        }
-
-        .stream-bar.playstation {
-            background: linear-gradient(90deg, #003087 0%, #0070d1 100%);
-        }
-
-        .stream-bar.xbox {
-            background: linear-gradient(90deg, #107c10 0%, #0e6b0e 100%);
-        }
-
-        .stream-bar.kick {
-            background: linear-gradient(90deg, #53fc18 0%, #4ae015 100%);
-        }
-
-        .logo-container {
-            width: 40px;
-            height: 40px;
-            margin-left: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            position: relative;
-            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            overflow: visible;
-        }
-
-        .logo-container.animate {
-            transform: scale(1.8) translateY(-15px);
-            z-index: 200;
-        }
-
-        .logo {
-            width: 28px;
-            height: 28px;
-            fill: white;
-        }
-
-        .username {
-            flex: 1;
-            text-align: left;
-            color: white;
-            font-weight: bold;
-            font-size: 15px;
-            margin-left: 4px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            min-width: 0;
-        }
-
-        .counters-section {
-            display: flex;
-            align-items: center;
-            margin-right: 12px;
-            gap: 12px;
-            flex-shrink: 0;
-        }
-
-        .counter-group {
-            display: flex;
-            align-items: center;
-            padding: 4px 6px;
-            flex-shrink: 0;
-        }
-
-        .counter-group.hidden {
-            display: none;
-        }
-
-        .trophy-icon, .skull-icon {
-            width: 26px;
-            height: 26px;
-            margin-right: 6px;
-            flex-shrink: 0;
-        }
-
-        .trophy-icon {
-            fill: #ffd700;
-        }
-
-        .skull-icon {
-            fill: #999;
-        }
-
-        .counter {
-            color: white;
-            font-weight: bold;
-            font-size: 16px;
-            transition: transform 0.3s ease, color 0.2s ease;
-            white-space: nowrap;
-        }
-
-        .counter.animate {
-            transform: scale(1.2);
-        }
-
-        .trophy-counter.animate {
-            color: #ffd700;
-        }
-
-        .death-counter.animate {
-            color: #ff4444;
-        }
-
-        .divider {
-            width: 1px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.3);
-            margin: 0 8px;
-            flex-shrink: 0;
-        }
-
-        .controls-section {
-            margin-top: 30px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 20px;
-            border-radius: 12px;
-            width: 100%;
-            max-width: 400px;
-            color: white;
-        }
-
-        .controls-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #ffd700;
-        }
-
-        .tabs-container {
-            margin-bottom: 20px;
-        }
-
-        .tabs-nav {
-            display: flex;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            padding: 4px;
-            margin-bottom: 15px;
-        }
-
-        .tab-button {
-            flex: 1;
-            padding: 10px 8px;
-            background: transparent;
-            color: #ccc;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .tab-button.active {
-            background: #007AFF;
-            color: white;
-        }
-
-        .tab-button:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        .control-group {
-            margin-bottom: 20px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-        }
-
-        .control-group h3 {
-            margin: 0 0 15px 0;
-            font-size: 16px;
-            color: #ccc;
-        }
-
-        .platform-controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .platform-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-        }
-
-        .platform-logo {
-            width: 20px;
-            height: 20px;
-            fill: white;
-            flex-shrink: 0;
-        }
-
-        .username-input {
-            flex: 1;
-            padding: 6px 10px;
-            border: none;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 14px;
-        }
-
-        .username-input::placeholder {
-            color: #888;
-        }
-
-        .toggle-switch {
-            position: relative;
-            width: 50px;
-            height: 28px;
-            background: #333;
-            border-radius: 14px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .toggle-switch.active {
-            background: #007AFF;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 12px;
-            transition: transform 0.3s;
-        }
-
-        .toggle-switch.active .toggle-slider {
-            transform: translateX(22px);
-        }
-
-        .counter-controls {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .counter-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .counter-btn {
-            min-width: 32px;
-            height: 32px;
-            padding: 0 8px;
-            border: none;
-            border-radius: 6px;
-            background: #444;
-            color: white;
-            font-size: 14px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
-            white-space: nowrap;
-        }
-
-        .counter-btn.icon-only {
-            width: 32px;
-            padding: 0;
-            font-size: 18px;
-        }
-
-        .counter-btn:hover {
-            background: #555;
-        }
-
-        .counter-btn:active {
-            background: #333;
-        }
-
-        .counter-input {
-            width: 60px;
-            padding: 6px 8px;
-            border: none;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            text-align: center;
-            font-size: 14px;
-        }
-
-        .trophy-inputs {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            grid-template-rows: auto auto;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .trophy-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .trophy-reset-btn {
-            grid-row: 1 / 3;
-            grid-column: 2;
-            width: 70px !important;
-            height: 70px !important;
-            background: #ffd700 !important;
-            color: #000 !important;
-            font-size: 12px !important;
-            font-weight: bold !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            border-radius: 8px !important;
-        }
-
-        .trophy-reset-btn:hover {
-            background: #e6c200 !important;
-        }
-
-        .input-label {
-            font-size: 12px;
-            color: #aaa;
-            min-width: 80px;
-        }
-
-        .global-username {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 6px;
-        }
-
-        .global-username-input {
-            width: 100%;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 14px;
-            margin-bottom: 8px;
-            box-sizing: border-box;
-        }
-
-        .apply-all-btn {
-            width: 100%;
-            padding: 8px;
-            background: #007AFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .apply-all-btn:hover {
-            background: #0056b3;
-        }
-
-        .add-platform-section {
-            margin-top: 15px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 6px;
-            border: 2px dashed #444;
-        }
-
-        .add-platform-form {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .add-platform-input {
-            padding: 6px 8px;
-            border: none;
-            border-radius: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 12px;
-        }
-
-        .add-platform-btn {
-            padding: 8px;
-            background: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .add-platform-btn:hover {
-            background: #1e7e34;
-        }
-
-        .remove-platform-btn {
-            background: #dc3545 !important;
-            margin-left: auto;
-            min-width: 24px !important;
-            height: 24px !important;
-            font-size: 12px !important;
-        }
-
-        .remove-platform-btn:hover {
-            background: #c82333 !important;
-        }
-
-        .copyright {
-            margin-top: 30px;
-            text-align: center;
-            color: #666;
-            font-size: 12px;
-        }
-
-        /* Modo OBS */
-        body.obs-mode {
-            padding: 0;
-            background: transparent;
-            min-height: auto;
-        }
-        
-        body.obs-mode .controls-section,
-        body.obs-mode .copyright {
-            display: none;
-        }
-
-        /* Modo Dock */
-        body.dock-mode {
-            padding: 10px;
-            background: #2c2c2c;
-            min-height: auto;
-        }
-        
-        body.dock-mode .stream-bar {
-            display: none;
-        }
-        
-        body.dock-mode .controls-section {
-            max-width: 300px;
-            margin: 0;
-            background: rgba(0, 0, 0, 0.9);
-        }
-
-        @media (max-width: 768px) {
-            .stream-bar {
-                max-width: 100%;
-                min-width: 250px;
-            }
-            
-            .username {
-                font-size: 15px;
-            }
-            
-            .counter {
-                font-size: 16px;
-            }
-            
-            .controls-section {
-                padding: 15px;
-            }
-        }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>PlayJEGUE Stream Bar (Fix)</title>
+<style>
+    :root{
+        --bar-radius: 26px;
+        --bar-h: 56px;
+        --bar-padding: 8px;
+        --platform-color: #7c3aed; /* default (Twitch) */
+        --platform-color-dark: #5b2db5;
+        --text: #fff;
+        --muted: #cfcfcf;
+        --ui: #2a2a2a;
+        --ui-2:#1f1f1f;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+        margin:0;
+        padding:16px;
+        background:#111;
+        color:var(--text);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji", "Segoe UI Symbol";
+        display:flex;flex-direction:column;align-items:center;gap:16px
+    }
+
+    /* ===== BAR ===== */
+    .wrap{position:relative}
+    .stream-bar{
+        width:min(460px, 96vw);
+        height:var(--bar-h);
+        border-radius:var(--bar-radius);
+        display:flex;align-items:center;gap:8px;
+        padding:0 var(--bar-padding);
+        background: linear-gradient(90deg, var(--platform-color) 0%, var(--platform-color-dark) 100%);
+        box-shadow: 0 10px 24px rgba(0,0,0,.35);
+        position:relative;overflow:hidden;
+        transition: background .5s ease;
+        will-change: transform;
+        animation: barBounce 3.2s ease-in-out infinite;
+    }
+    /* subtle bounce */
+    @keyframes barBounce {
+        0%,100%{transform: translateY(0)}
+        50%{transform: translateY(-2.5px)}
+    }
+
+    /* GLOW ring (toggleable) */
+    .glow:before{
+        content:"";
+        position:absolute;inset:-3px;
+        border-radius: calc(var(--bar-radius) + 4px);
+        padding:3px;
+        --c: var(--platform-color);
+        background:
+          conic-gradient(from var(--glow-rot, 0deg), #fff 0 8%, transparent 8% 25%, var(--c) 25% 40%, transparent 40% 100%);
+        -webkit-mask: 
+          linear-gradient(#000 0 0) content-box, 
+          linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude;
+        animation: spin 6s linear infinite;
+        pointer-events:none;
+    }
+    @keyframes spin { to { --glow-rot: 360deg } }
+
+    /* optional shadow */
+    .shadow{ box-shadow: 0 18px 40px rgba(0,0,0,.55); }
+
+    .logo-box{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.08);
+        display:grid;place-items:center;flex:0 0 auto; position:relative;
+        transition: transform .35s cubic-bezier(.22,1,.36,1);
+    }
+    .logo{width:26px;height:26px;fill:#fff;display:block}
+    .username{flex:1;min-width:0;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .counters{display:flex;align-items:center;gap:10px;margin-left:auto}
+    .counter-group{display:flex;align-items:center;gap:6px}
+    .counter{font-weight:800;font-size:18px}
+    .divider{width:1px;height:26px;background:rgba(255,255,255,.35);}
+
+    /* Better icons */
+    .skull{width:22px;height:22px}
+    .trophy{width:22px;height:22px}
+
+    /* ===== CONTROLS (Dock) ===== */
+    .panel{
+        width:min(900px, 96vw);
+        background:var(--ui);
+        border-radius:16px;
+        padding:14px;
+        display:flex;flex-direction:column;gap:14px
+    }
+    .title{font-weight:800;letter-spacing:.3px;opacity:.95}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap}
+    .tab-btn{background:var(--ui-2);border:none;color:#fff;padding:8px 10px;border-radius:10px;cursor:pointer;opacity:.85}
+    .tab-btn.active{outline:2px solid var(--platform-color);opacity:1}
+    .tab{display:none;gap:16px}
+    .tab.active{display:flex}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .card{background:#181818;border:1px solid #2a2a2a;border-radius:12px;padding:12px;flex:1;min-width:260px}
+    .label{font-size:12px;opacity:.85;margin-bottom:6px}
+    .field{display:flex;align-items:center;gap:8px}
+    input[type="text"], input[type="number"], input[type="url"], input[type="color"]{
+        background:#111;border:1px solid #2c2c2c;border-radius:8px;padding:8px;color:#fff;min-width:0;flex:1
+    }
+    .toggle{width:44px;height:26px;border-radius:999px;background:#333;position:relative;cursor:pointer;flex:0 0 auto}
+    .toggle:before{content:"";position:absolute;inset:3px;width:20px;height:20px;border-radius:50%;background:#aaa;transition:transform .25s}
+    .toggle.on{background:#37c977}
+    .toggle.on:before{transform: translateX(18px);background:#fff}
+    .btn{background:#303030;border:1px solid #3a3a3a;color:#fff;border-radius:10px;padding:8px 10px;cursor:pointer}
+    .platform-list{display:flex;flex-direction:column;gap:10px;max-height:320px;overflow:auto}
+    .plat-item{display:grid;grid-template-columns:36px 1fr auto auto auto;align-items:center;gap:10px;background:#141414;border:1px solid #252525;padding:8px;border-radius:10px}
+    .plat-logo{width:24px;height:24px}
+    .subtabs{display:flex;gap:6px;margin-bottom:8px}
+    .subtab-btn{background:#202020;border:1px solid #2a2a2a;color:#ddd;border-radius:8px;padding:6px 8px;cursor:pointer;font-size:12px}
+    .subtab-btn.active{background:#2b2b2b;color:#fff;outline:1px solid #3f3f3f}
+    small.muted{color:#bbb;opacity:.9}
+</style>
 </head>
 <body>
-    <div class="stream-bar" id="streamBar">
-        <div class="logo-container" id="logoContainer">
-            <svg class="logo" viewBox="0 0 24 24" id="platformLogo">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
-        </div>
-
-        <div class="username" id="platformUsername">@PlayJegueOficial</div>
-
-        <div class="counters-section">
-            <div class="counter-group" id="deathCounterGroup">
-                <svg class="skull-icon" viewBox="0 0 100 100">
-                    <defs>
-                        <linearGradient id="skullGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#e0e0e0;stop-opacity:1" />
-                            <stop offset="50%" style="stop-color:#c0c0c0;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#999999;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    
-                    <!-- Crânio principal -->
-                    <ellipse cx="50" cy="45" rx="28" ry="25" fill="url(#skullGrad)" stroke="#777" stroke-width="1"/>
-                    
-                    <!-- Testa -->
-                    <ellipse cx="50" cy="35" rx="25" ry="20" fill="url(#skullGrad)"/>
-                    
-                    <!-- Órbitas oculares -->
-                    <ellipse cx="42" cy="42" rx="6" ry="8" fill="#333"/>
-                    <ellipse cx="58" cy="42" rx="6" ry="8" fill="#333"/>
-                    
-                    <!-- Cavidade nasal -->
-                    <path d="M50 48 L46 58 L50 62 L54 58 Z" fill="#333"/>
-                    
-                    <!-- Maxilar -->
-                    <rect x="35" y="58" width="30" height="12" rx="6" fill="url(#skullGrad)" stroke="#777" stroke-width="1"/>
-                    
-                    <!-- Dentes -->
-                    <rect x="40" y="62" width="3" height="6" fill="#fff"/>
-                    <rect x="44" y="62" width="3" height="8" fill="#fff"/>
-                    <rect x="48" y="62" width="4" height="8" fill="#fff"/>
-                    <rect x="53" y="62" width="4" height="8" fill="#fff"/>
-                    <rect x="57" y="62" width="3" height="6" fill="#fff"/>
-                    
-                    <!-- Sombras e detalhes -->
-                    <ellipse cx="42" cy="40" rx="2" ry="3" fill="#222" opacity="0.8"/>
-                    <ellipse cx="58" cy="40" rx="2" ry="3" fill="#222" opacity="0.8"/>
-                    
-                    <!-- Rachadura no crânio -->
-                    <path d="M35 30 Q40 25 45 30 Q50 35 55 30" stroke="#666" stroke-width="1" fill="none" opacity="0.6"/>
-                </svg>
-                <span class="counter death-counter" id="deathCounter">0</span>
+    <div class="wrap">
+        <div id="bar" class="stream-bar shadow">
+            <div class="logo-box" id="logoBox">
+                <svg id="logo" class="logo" viewBox="0 0 24 24" aria-hidden="true"></svg>
             </div>
-            
-            <div class="divider" id="counterDivider"></div>
-            
-            <div class="counter-group" id="trophyCounterGroup">
-                <svg class="trophy-icon" viewBox="0 0 100 100">
-                    <defs>
-                        <linearGradient id="platinumGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#e8e8e8;stop-opacity:1" />
-                            <stop offset="30%" style="stop-color:#ffffff;stop-opacity:1" />
-                            <stop offset="70%" style="stop-color:#d0d0d0;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#b8b8b8;stop-opacity:1" />
-                        </linearGradient>
-                        <linearGradient id="baseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#c0c0c0;stop-opacity:1" />
-                            <stop offset="50%" style="stop-color:#a0a0a0;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#808080;stop-opacity:1" />
-                        </linearGradient>
-                    </defs>
-                    
-                    <!-- Base do troféu -->
-                    <ellipse cx="50" cy="88" rx="22" ry="5" fill="url(#baseGrad)"/>
-                    <rect x="28" y="82" width="44" height="10" rx="5" fill="url(#baseGrad)"/>
-                    
-                    <!-- Haste -->
-                    <rect x="46" y="65" width="8" height="17" fill="url(#baseGrad)"/>
-                    
-                    <!-- Copa principal -->
-                    <path d="M32 20 Q32 12 50 12 Q68 12 68 20 L68 50 Q68 62 50 65 Q32 62 32 50 Z" fill="url(#platinumGrad)" stroke="#999" stroke-width="1"/>
-                    
-                    <!-- Alças laterais -->
-                    <path d="M28 28 Q22 28 22 34 L22 42 Q22 48 28 48 L32 48 L32 38 Q30 32 28 28 Z" fill="url(#platinumGrad)" stroke="#999" stroke-width="0.8"/>
-                    <path d="M72 28 Q78 28 78 34 L78 42 Q78 48 72 48 L68 48 L68 38 Q70 32 72 28 Z" fill="url(#platinumGrad)" stroke="#999" stroke-width="0.8"/>
-                    
-                    <!-- Detalhes decorativos -->
-                    <ellipse cx="50" cy="25" rx="10" ry="7" fill="#ffffff" opacity="0.8"/>
-                    <rect x="40" y="38" width="20" height="4" rx="2" fill="#ffffff" opacity="0.6"/>
-                    <rect x="43" y="48" width="14" height="3" rx="1.5" fill="#ffffff" opacity="0.4"/>
-                    
-                    <!-- Brilho platina -->
-                    <ellipse cx="45" cy="22" rx="3" ry="2" fill="#ffffff" opacity="0.9"/>
-                </svg>
-                <span class="counter trophy-counter" id="trophyCounter">0/41</span>
-            </div>
-        </div>
-    </div>
+            <div id="username" class="username">@</div>
 
-    <div class="controls-section" id="controlsSection">
-        <div class="controls-title">
-            ⚙️ PlayJEGUE Stream Bar Config
-        </div>
-        
-        <div class="tabs-container">
-            <div class="tabs-nav">
-                <button class="tab-button active" onclick="switchTab('counters')">🎯 Contadores</button>
-                <button class="tab-button" onclick="switchTab('platforms')">📱 Plataformas</button>
-                <button class="tab-button" onclick="switchTab('instructions')">📋 Instruções</button>
-            </div>
-
-            <!-- Aba Contadores -->
-            <div class="tab-content active" id="counters-tab">
-                <div class="control-group">
-                    <h3><svg style="width: 16px; height: 16px; fill: #999; vertical-align: middle; margin-right: 5px;" viewBox="0 0 100 100">
+            <div class="counters">
+                <div id="deathGroup" class="counter-group">
+                    <!-- Improved Skull -->
+                    <svg class="skull" viewBox="0 0 24 24" aria-hidden="true">
                         <defs>
-                            <linearGradient id="skullGradSmall2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#e0e0e0;stop-opacity:1" />
-                                <stop offset="50%" style="stop-color:#c0c0c0;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#999999;stop-opacity:1" />
+                            <linearGradient id="skg" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#e6e6e6"/>
+                                <stop offset="60%" stop-color="#bdbdbd"/>
+                                <stop offset="100%" stop-color="#9a9a9a"/>
                             </linearGradient>
                         </defs>
-                        <ellipse cx="50" cy="45" rx="28" ry="25" fill="url(#skullGradSmall2)" stroke="#777" stroke-width="1"/>
-                        <ellipse cx="50" cy="35" rx="25" ry="20" fill="url(#skullGradSmall2)"/>
-                        <ellipse cx="42" cy="42" rx="6" ry="8" fill="#333"/>
-                        <ellipse cx="58" cy="42" rx="6" ry="8" fill="#333"/>
-                        <path d="M50 48 L46 58 L50 62 L54 58 Z" fill="#333"/>
-                        <rect x="35" y="58" width="30" height="12" rx="6" fill="url(#skullGradSmall2)" stroke="#777" stroke-width="1"/>
-                        <rect x="40" y="62" width="3" height="6" fill="#fff"/>
-                        <rect x="44" y="62" width="3" height="8" fill="#fff"/>
-                        <rect x="48" y="62" width="4" height="8" fill="#fff"/>
-                        <rect x="53" y="62" width="4" height="8" fill="#fff"/>
-                        <rect x="57" y="62" width="3" height="6" fill="#fff"/>
-                        <ellipse cx="42" cy="40" rx="2" ry="3" fill="#222" opacity="0.8"/>
-                        <ellipse cx="58" cy="40" rx="2" ry="3" fill="#222" opacity="0.8"/>
-                        <path d="M35 30 Q40 25 45 30 Q50 35 55 30" stroke="#666" stroke-width="1" fill="none" opacity="0.6"/>
-                    </svg> Contador de Mortes</h3>
-                    <div class="counter-controls">
-                        <div class="counter-item">
-                            <div class="toggle-switch" onclick="toggleDeathCounter()" style="margin-right: 10px;">
-                                <div class="toggle-slider"></div>
-                            </div>
-                            <span style="margin-right: 15px; font-size: 12px; color: #ccc;">Mostrar</span>
-                            <button class="counter-btn icon-only" onclick="decrementDeath()">-</button>
-                            <input type="number" class="counter-input" id="deathInput" value="0" min="0" max="999" onchange="updateDeathCount(this.value)">
-                            <button class="counter-btn icon-only" onclick="incrementDeath()">+</button>
-                        </div>
-                        <button class="counter-btn" onclick="resetDeaths()" style="background: #ff4444;">Zerar</button>
-                    </div>
+                        <path d="M12 2c4.8 0 8 3.13 8 7.5 0 2.62-1.2 4.27-3.07 5.33v2.17a1 1 0 0 1-1 1h-1v2a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-2H6a1 1 0 0 1-1-1v-2.2C3.99 13.75 4 11.6 4 9.5 4 5.13 7.2 2 12 2Z" fill="url(#skg)"/>
+                        <circle cx="9" cy="10" r="1.9" fill="#222"/>
+                        <circle cx="15" cy="10" r="1.9" fill="#222"/>
+                        <path d="M12 13.5c1.2.1 2 .8 2 1.7s-.8 1.3-2 1.3-2-.4-2-1.3.8-1.6 2-1.7Z" fill="#222" opacity=".75"/>
+                    </svg>
+                    <span id="death" class="counter">0</span>
                 </div>
 
-                <div class="control-group">
-                    <h3><svg style="width: 16px; height: 16px; fill: #ffd700; vertical-align: middle; margin-right: 5px;" viewBox="0 0 100 100">
+                <div id="divider" class="divider" style="display:none"></div>
+
+                <div id="trophyGroup" class="counter-group">
+                    <!-- PlayStation Platinum Trophy -->
+                    <svg class="trophy" viewBox="0 0 64 64" aria-hidden="true">
                         <defs>
-                            <linearGradient id="platinumGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#e8e8e8;stop-opacity:1" />
-                                <stop offset="30%" style="stop-color:#ffffff;stop-opacity:1" />
-                                <stop offset="70%" style="stop-color:#d0d0d0;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#b8b8b8;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="baseGradSmall" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" style="stop-color:#c0c0c0;stop-opacity:1" />
-                                <stop offset="50%" style="stop-color:#a0a0a0;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#808080;stop-opacity:1" />
+                            <linearGradient id="pl" x1="0" y1="0" x2="1" y2="1">
+                                <stop offset="0%" stop-color="#f0f0f3"/>
+                                <stop offset="40%" stop-color="#ffffff"/>
+                                <stop offset="80%" stop-color="#c9c9d3"/>
                             </linearGradient>
                         </defs>
-                        <ellipse cx="50" cy="88" rx="22" ry="5" fill="url(#baseGradSmall)"/>
-                        <rect x="28" y="82" width="44" height="10" rx="5" fill="url(#baseGradSmall)"/>
-                        <rect x="46" y="65" width="8" height="17" fill="url(#baseGradSmall)"/>
-                        <path d="M32 20 Q32 12 50 12 Q68 12 68 20 L68 50 Q68 62 50 65 Q32 62 32 50 Z" fill="url(#platinumGradSmall)" stroke="#999" stroke-width="1"/>
-                        <path d="M28 28 Q22 28 22 34 L22 42 Q22 48 28 48 L32 48 L32 38 Q30 32 28 28 Z" fill="url(#platinumGradSmall)" stroke="#999" stroke-width="0.8"/>
-                        <path d="M72 28 Q78 28 78 34 L78 42 Q78 48 72 48 L68 48 L68 38 Q70 32 72 28 Z" fill="url(#platinumGradSmall)" stroke="#999" stroke-width="0.8"/>
-                        <ellipse cx="50" cy="25" rx="10" ry="7" fill="#ffffff" opacity="0.8"/>
-                        <rect x="40" y="38" width="20" height="4" rx="2" fill="#ffffff" opacity="0.6"/>
-                        <rect x="43" y="48" width="14" height="3" rx="1.5" fill="#ffffff" opacity="0.4"/>
-                        <ellipse cx="45" cy="22" rx="3" ry="2" fill="#ffffff" opacity="0.9"/>
-                    </svg> Contador de Troféus</h3>
-                    <div style="margin-bottom: 15px; display: flex; align-items: center;">
-                        <div class="toggle-switch" onclick="toggleTrophyCounter()" style="margin-right: 10px;">
-                            <div class="toggle-slider"></div>
-                        </div>
-                        <span style="font-size: 12px; color: #ccc;">Mostrar contador</span>
-                    </div>
-                    <div class="counter-controls">
-                        <div class="trophy-inputs">
-                            <div class="trophy-row">
-                                <span class="input-label">Conquistados:</span>
-                                <button class="counter-btn icon-only" onclick="decrementCurrentTrophy()">-</button>
-                                <input type="number" class="counter-input" id="currentTrophyInput" value="0" min="0" max="99" onchange="updateCurrentTrophy(this.value)">
-                                <button class="counter-btn icon-only" onclick="incrementCurrentTrophy()">+</button>
-                            </div>
-                            <div class="trophy-row">
-                                <span class="input-label">Platina:</span>
-                                <button class="counter-btn icon-only" onclick="decrementMaxTrophy()">-</button>
-                                <input type="number" class="counter-input" id="maxTrophyInput" value="1" min="1" max="99" onchange="updateMaxTrophy(this.value)">
-                                <button class="counter-btn icon-only" onclick="incrementMaxTrophy()">+</button>
-                            </div>
-                            <button class="counter-btn trophy-reset-btn" onclick="resetTrophies()">Zerar</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Aba Plataformas -->
-            <div class="tab-content" id="platforms-tab">
-                <div class="control-group">
-                    <h3>📱 Plataformas e Usuários</h3>
-                    
-                    <div class="global-username">
-                        <input type="text" class="global-username-input" id="globalUsernameInput" placeholder="Digite o usuário para aplicar em todas as plataformas">
-                        <button class="apply-all-btn" onclick="applyGlobalUsername()">Aplicar em Todas</button>
-                    </div>
-                    
-                    <div class="platform-controls" id="platformControls">
-                        <!-- Plataformas serão inseridas aqui via JavaScript -->
-                    </div>
-                    
-                    <div class="add-platform-section">
-                        <div class="add-platform-form">
-                            <input type="text" class="add-platform-input" id="newPlatformName" placeholder="Nome da plataforma (ex: TikTok)">
-                            <input type="text" class="add-platform-input" id="newPlatformUsername" placeholder="Usuário (ex: @usuario)">
-                            <input type="text" class="add-platform-input" id="newPlatformColor" placeholder="Cor (ex: #ff0050)" value="#6c5ce7">
-                            <button class="add-platform-btn" onclick="addPlatform()">+ Adicionar Plataforma</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Aba Instruções -->
-            <div class="tab-content" id="instructions-tab">
-                <div class="control-group">
-                    <h3>⌨️ Atalhos de Teclado</h3>
-                    <div style="font-size: 12px; line-height: 1.6; color: #ccc;">
-                        <strong>Troféus:</strong><br>
-                        • CMD/CTRL + [ → Incrementar atual<br>
-                        • CMD/CTRL + ] → Incrementar máximo<br>
-                        • CMD/CTRL + \ → Resetar ambos<br><br>
-                        
-                        <strong>Mortes:</strong><br>
-                        • CMD/CTRL + SHIFT + ] → Incrementar<br>
-                        • CMD/CTRL + SHIFT + \ → Resetar
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <h3>🎥 Configuração no OBS</h3>
-                    <div style="font-size: 12px; line-height: 1.6; color: #ccc;">
-                        <strong>Para usar como Browser Source:</strong><br>
-                        1. Adicione uma "Browser Source" no OBS<br>
-                        2. Cole a URL atual + <code style="background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 3px;">?obs=true</code><br>
-                        3. Defina largura: 450px, altura: 70px<br><br>
-                        
-                        <strong>Para usar como Dock Customizado:</strong><br>
-                        1. No OBS, vá em "Docks" → "Dock Customizado"<br>
-                        2. Cole a URL atual + <code style="background: rgba(255,255,255,0.1); padding: 2px 4px; border-radius: 3px;">?dock=true</code><br>
-                        3. Nomeie como "PlayJEGUE Controls"<br>
-                        4. Agora você pode controlar tudo direto do OBS!<br><br>
-                        
-                        <strong>Sincronização:</strong><br>
-                        • Mudanças no dock refletem automaticamente na tela<br>
-                        • Funciona entre múltiplas abas/janelas<br>
-                        • Dados são salvos localmente
-                    </div>
+                        <path d="M16 12h32c0 10-3 14-10 16a10 10 0 1 1-12 0c-7-2-10-6-10-16Z" fill="url(#pl)" stroke="#9aa0a6"/>
+                        <rect x="28" y="40" width="8" height="6" rx="2" fill="#a7a7b3"/>
+                        <rect x="24" y="46" width="16" height="4" rx="2" fill="#9a9aac"/>
+                    </svg>
+                    <span id="trophy" class="counter">0/1</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="copyright" id="copyright">
-        © 2024 PlayJEGUE - Todos os direitos reservados<br>
-        <button onclick="copyBrowserUrl()" style="margin-top: 10px; padding: 8px 16px; background: #007AFF; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 8px;">
-            📺 Copiar URL Browser
-        </button>
-        <button onclick="copyDockUrl()" style="margin-top: 10px; padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; margin-right: 8px;">
-            🔧 Copiar URL Dock
-        </button>
-        <button onclick="forceRefresh()" style="margin-top: 10px; padding: 8px 16px; background: #ffc107; color: #000; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">
-            🔄 Atualizar OBS
-        </button>
+    <!-- Control Panel (for Dock/custom) -->
+    <div class="panel" id="panel">
+        <div class="title">⚙️ PlayJEGUE Stream Bar — Geral</div>
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="geral">Geral</button>
+            <button class="tab-btn" data-tab="contadores">Contadores</button>
+            <button class="tab-btn" data-tab="plataformas">Plataformas</button>
+            <button class="tab-btn" data-tab="instrucoes">Instruções</button>
+        </div>
+
+        <!-- Geral -->
+        <div class="tab active" id="tab-geral">
+            <div class="card">
+                <div class="label">Efeitos da Barra</div>
+                <div class="row">
+                    <div class="field">
+                        <div class="toggle on" id="toggleShadow"></div>
+                        <span>Ativar sombra</span>
+                    </div>
+                    <div class="field">
+                        <div class="toggle on" id="toggleGlow"></div>
+                        <span>Ativar Glow (anel giratório)</span>
+                    </div>
+                </div>
+                <div class="row">
+                    <button class="btn" id="copyBrowser">Copiar URL (Source)</button>
+                    <button class="btn" id="copyDock">Copiar URL (Dock)</button>
+                </div>
+                <small class="muted">Use a URL com <code>?obs=true</code> para Source e <code>?dock=true</code> para Dock.</small>
+            </div>
+        </div>
+
+        <!-- Contadores -->
+        <div class="tab" id="tab-contadores">
+            <div class="card">
+                <div class="label">Mortes</div>
+                <div class="row">
+                    <button class="btn" id="decDeath">-</button>
+                    <input id="deathInput" type="number" min="0" value="0"/>
+                    <button class="btn" id="incDeath">+</button>
+                    <button class="btn" id="resetDeath">Zerar</button>
+                    <div class="field">
+                        <div class="toggle on" id="toggleDeath"></div><span>Mostrar</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="label">Troféus (atual / platina)</div>
+                <div class="row">
+                    <button class="btn" id="decT1">-</button>
+                    <input id="t1" type="number" min="0" value="0"/>
+                    <button class="btn" id="incT1">+</button>
+                    <button class="btn" id="decT2">-</button>
+                    <input id="t2" type="number" min="1" value="1"/>
+                    <button class="btn" id="incT2">+</button>
+                    <button class="btn" id="resetT">Zerar</button>
+                    <div class="field">
+                        <div class="toggle on" id="toggleTrophy"></div><span>Mostrar</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Plataformas -->
+        <div class="tab" id="tab-plataformas">
+            <div class="card" style="flex:2">
+                <div class="label">Usuário Global</div>
+                <div class="row">
+                    <input id="globalUser" type="text" placeholder="Digite @usuario para aplicar nas plataformas selecionadas"/>
+                    <button class="btn" id="applyAll">Aplicar</button>
+                </div>
+
+                <div class="subtabs" id="subtabs">
+                    <button class="subtab-btn active" data-sub="principais">Principais</button>
+                    <button class="subtab-btn" data-sub="consoles">Consoles</button>
+                    <button class="subtab-btn" data-sub="redes">Redes</button>
+                    <button class="subtab-btn" data-sub="custom">Custom</button>
+                </div>
+
+                <div class="platform-list" id="platList"></div>
+            </div>
+
+            <div class="card" style="flex:1">
+                <div class="label">Adicionar Plataforma (inclui ícone por URL)</div>
+                <div class="row">
+                    <input id="pName" type="text" placeholder="Nome (ex: TikTok)"/>
+                    <input id="pUser" type="text" placeholder="@usuario"/>
+                </div>
+                <div class="row">
+                    <input id="pColor" type="color" value="#6c5ce7"/>
+                    <input id="pIconUrl" type="url" placeholder="URL do ícone/imagem (opcional)"/>
+                </div>
+                <button class="btn" id="addPlatform">+ Adicionar</button>
+                <small class="muted">A plataforma "CUSTOM" permite personalizar um ícone/URL livre.</small>
+            </div>
+        </div>
+
+        <!-- Instruções -->
+        <div class="tab" id="tab-instrucoes">
+            <div class="card">
+                <div class="label">Atalhos de Teclado</div>
+                <div>• CMD/CTRL + [ : + Troféu Atual • CMD/CTRL + ] : + Platina • CMD/CTRL + \\ : Zerar Troféus</div>
+                <div>• CMD/CTRL + SHIFT + ] : + Mortes • CMD/CTRL + SHIFT + \\ : Zerar Mortes</div>
+            </div>
+            <div class="card">
+                <div class="label">OBS</div>
+                <div>Adicione como Browser Source. Acrescente <code>?obs=true</code>. Para Dock, use <code>?dock=true</code>.</div>
+            </div>
+        </div>
     </div>
 
-    <script>
-        // Estado da aplicação
-        let appState = {
-            currentTrophy: 0,
-            maxTrophy: 1,
-            deathCount: 0,
-            showDeathCounter: true,
-            showTrophyCounter: true,
-            platforms: [
-                {
-                    name: 'youtube',
-                    username: '@PlayJEGUE',
-                    enabled: true,
-                    logo: `<path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>`
-                },
-                {
-                    name: 'instagram',
-                    username: '@PlayJegueOficial',
-                    enabled: true,
-                    logo: `<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>`
-                },
-                {
-                    name: 'twitch',
-                    username: '@PlayJEGUE',
-                    enabled: true,
-                    logo: `<path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>`
-                },
-                {
-                    name: 'tiktok',
-                    username: '@PlayJEGUE',
-                    enabled: true,
-                    logo: `<path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>`
-                },
-                {
-                    name: 'discord',
-                    username: '@PlayJEGUE',
-                    enabled: true,
-                    logo: `<path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>`
-                },
-                {
-                    name: 'playstation',
-                    username: '@PlayJEGUE',
-                    enabled: true,
-                    logo: `<path d="M8.204 14.552c0 .371-.303.674-.674.674s-.674-.303-.674-.674.303-.674.674-.674.674.303.674.674zm6.592 0c0 .371-.303.674-.674.674s-.674-.303-.674-.674.303-.674.674-.674.674.303.674.674zm6.592 0c0 .371-.303.674-.674.674s-.674-.303-.674-.674.303-.674.674-.674.674.303.674.674zm-13.184 0c0 .371-.303.674-.674.674s-.674-.303-.674-.674.303-.674.674-.674.674.303.674.674zM12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm0 22C6.486 22 2 17.514 2 12S6.486 2 12 2s10 4.486 10 10-4.486 10-10 10zm5.5-10c0-3.038-2.462-5.5-5.5-5.5S6.5 8.962 6.5 12s2.462 5.5 5.5 5.5 5.5-2.462 5.5-5.5z"/>`
-                },
-                {
-                    name: 'xbox',
-                    username: '@PlayJEGUE',
-                    enabled: true,
-                    logo: `<path d="M4.102 21.033C6.211 22.881 8.977 24 12 24c3.026 0 5.789-1.119 7.902-2.967 1.877-1.912-4.316-8.709-7.902-11.417-3.582 2.708-9.779 9.505-7.898 11.417zm11.16-14.406c2.5 2.961 7.484 10.313 6.076 12.912C23.002 17.48 24 14.861 24 12.004c0-3.34-1.365-6.362-3.57-8.536 0 0-.027-.022-.082-.042-.063-.022-.152-.045-.281-.045-.592 0-1.985.434-4.805 3.246zM3.654 3.426c-.057.02-.082.041-.082.041C1.365 5.642 0 8.664 0 12.004c0 2.854.998 5.473 2.661 7.533-1.401-2.605 3.579-9.951 6.08-12.912-2.82-2.812-4.216-3.246-4.805-3.246-.131 0-.223.023-.282.047zM12 3.551S9.055 1.828 6.755 1.746c-.903-.033-1.454.295-1.521.339C7.379.646 9.659 0 12 0s4.621.646 6.766 2.085c-.067-.044-.618-.372-1.521-.339C14.945 1.828 12 3.551 12 3.551z"/>`
-                },
-                {
-                    name: 'kick',
-                    username: '@PlayJEGUE',
-                    enabled: true,
-                    logo: `<path d="M2 2h20v20H2V2zm18 18V4H4v16h16zM8 6h2v4h4V6h2v12h-2v-6h-4v6H8V6z"/>`
-                }
-            ],
-            currentPlatformIndex: 0,
-            activeTab: 'counters',
-            isObsMode: false,
-            isDockMode: false
-        };
+<script>
+// ---------- STATE ----------
+const STORAGE_KEY = "playjegue_stream_data_v2";
+const appState = {
+    currentTrophy: 0,
+    maxTrophy: 1,
+    deathCount: 0,
+    showDeath: true,
+    showTrophy: true,
+    glow: true,
+    shadow: true,
+    // IMPORTANT: default usernames start blank and most platforms disabled on first load
+    platforms: [
+        // Principais
+        {name:"twitch",  label:"Twitch",  username:"", color:"#9146ff", icon:svg.twitch, enabled:false, cat:"principais"},
+        {name:"youtube", label:"YouTube", username:"", color:"#ff0000", icon:svg.youtube, enabled:false, cat:"principais"},
+        {name:"kick",    label:"Kick",    username:"", color:"#53fc18", icon:svg.kick,    enabled:false, cat:"principais"},
+        // Consoles
+        {name:"playstation", label:"PlayStation", username:"", color:"#0070d1", icon:svg.playstation, enabled:false, cat:"consoles"},
+        {name:"xbox",        label:"Xbox",        username:"", color:"#107c10", icon:svg.xbox,        enabled:false, cat:"consoles"},
+        // Redes
+        {name:"instagram", label:"Instagram", username:"", color:"#dc2743", icon:svg.instagram, enabled:false, cat:"redes"},
+        {name:"tiktok",    label:"TikTok",    username:"", color:"#ff0050", icon:svg.tiktok,    enabled:false, cat:"redes"},
+        // Custom placeholder
+        {name:"custom", label:"CUSTOM", username:"", color:"#6c5ce7", icon:null, iconUrl:"", enabled:false, cat:"custom"}
+    ],
+    currentPlatformIndex: 0,
+    activeSub:"principais",
+    isObs: new URLSearchParams(location.search).get("obs")==="true",
+    isDock: new URLSearchParams(location.search).get("dock")==="true"
+};
 
-        // Constantes
-        const STORAGE_KEY = 'playjegue_stream_data';
-        const BROADCAST_CHANNEL_NAME = 'playjegue_sync';
-        
-        // Sistema de broadcast melhorado
-        let broadcastChannel = null;
-        let isUpdatingFromBroadcast = false;
-        let broadcastQueue = [];
-        let broadcastTimeout = null;
+// ---------- ICONS (fixed/improved) ----------
+function path(d){ return `<path d="${d}"/>`; }
+const svg = {
+    // YouTube
+    youtube: path("M10 8l6 4-6 4V8zm-8-1.5C2 4 4 4 12 4s10 0 10 2.5V17.5C22 20 20 20 12 20S2 20 2 17.5V6.5z"),
+    // Twitch
+    twitch: path("M4 2h16v12l-4 4h-4l-2 2H8v-2H4V2zm6 4v6h2V6h-2zm6 0v6h2V6h-2z"),
+    // Instagram (glyph)
+    instagram: `<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="1.5"/>`,
+    // TikTok
+    tiktok: path("M9 3h3c.1 2.1 1.4 3.8 3.6 4.1V9c-1.8 0-3.2-.6-4.3-1.5V15a5 5 0 1 1-3-9.1V8a2 2 0 1 0 2 2V3z"),
+    // Xbox
+    xbox: `<path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm3.9 5.1a14.6 14.6 0 0 1-3.9 3.2 14.6 14.6 0 0 1-3.9-3.2A6.9 6.9 0 0 1 12 6a6.9 6.9 0 0 1 3.9 1.1Zm-8 1.5a25.3 25.3 0 0 0 4.1 3.4C9 13.8 7.6 16.2 7 19a8 8 0 0 1 .9-10.4ZM16 19c-.6-2.8-2-5.2-5-7a25.3 25.3 0 0 0 4.1-3.4A8 8 0 0 1 19 19Z"/>`,
+    // PlayStation (fixed iconic PS "PS" swoosh mark)
+    playstation: `<path d="M10 3v14.5c0 1.7-4.5.4-6-.2v-2.6c2 .8 6 2.1 6 .1V8.5l6.6 2.3c2.2.7 3.4 1.6 3.4 3.5 0 2.6-2.8 4-5.7 2.8v-2.4c1.3.6 2.4.4 2.4-.5 0-.6-.6-1-1.8-1.4L10 10.6V3z"/><path d="M22 18.2c-1.5.8-3.9 1.6-6 .8v-2.2c1.5.5 3.2.1 4-.4 1.4-.9.5-1.7-1.6-2.4l-2.4-.7V11l3.1 1c2.7.9 4.3 2.6 2.9 4.2z"/>`,
+    // Kick (fixed block K)
+    kick: `<path d="M3 3h18v18H3z"/><path d="M8 7h3v4l3-4h3l-3.6 4.5L17 17h-3.2l-3-4v4H8z" fill="#111"/>`
+};
 
-        // Inicializar broadcast channel com fallback
-        function initBroadcastChannel() {
-            try {
-                if (typeof BroadcastChannel !== 'undefined') {
-                    broadcastChannel = new BroadcastChannel(BROADCAST_CHANNEL_NAME);
-                    
-                    broadcastChannel.addEventListener('message', (event) => {
-                        if (!isUpdatingFromBroadcast && event.data && event.data.type === 'state_update') {
-                            handleBroadcastMessage(event.data);
-                        }
-                    });
-                    
-                    broadcastChannel.addEventListener('error', (error) => {
-                        console.warn('Erro no BroadcastChannel:', error);
-                        broadcastChannel = null;
-                        setupStorageListener();
-                    });
-                } else {
-                    setupStorageListener();
-                }
-            } catch (error) {
-                console.warn('BroadcastChannel não disponível, usando localStorage:', error);
-                setupStorageListener();
-            }
+// Populate SVG on object creation
+// (we needed svg variable earlier in appState; it's fine because functions/const hoist by parsing order)
+
+// ---------- UTIL ----------
+function $(q,root=document){return root.querySelector(q)}
+function $all(q,root=document){return Array.from(root.querySelectorAll(q))}
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(appState)); }
+function load(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    try{
+        const data = JSON.parse(raw);
+        Object.assign(appState, data);
+    }catch(e){}
+}
+load();
+
+// ---------- BAR RENDER ----------
+function setPlatformCss(color){
+    document.documentElement.style.setProperty("--platform-color", color);
+    // darker
+    const c = color.replace("#","");
+    const r = Math.max(0, parseInt(c.substr(0,2),16)-40);
+    const g = Math.max(0, parseInt(c.substr(2,2),16)-40);
+    const b = Math.max(0, parseInt(c.substr(4,2),16)-40);
+    document.documentElement.style.setProperty("--platform-color-dark", `#${r.toString(16).padStart(2,"0")}${g.toString(16).padStart(2,"0")}${b.toString(16).padStart(2,"0")}`);
+}
+
+function renderBar(){
+    const p = getEnabledPlatforms()[appState.currentPlatformIndex] || appState.platforms[0];
+    const bar = $("#bar");
+    const logo = $("#logo");
+    const username = $("#username");
+    const divider = $("#divider");
+    const deathGroup = $("#deathGroup");
+    const trophyGroup = $("#trophyGroup");
+
+    // username & icon
+    username.textContent = p?.username || "@";
+    logo.innerHTML = p?.icon ? p.icon : (p?.iconUrl ? `<image href="${p.iconUrl}" width="24" height="24" x="0" y="0"/>` : "");
+
+    // color
+    setPlatformCss(p?.color || "#7c3aed");
+
+    // counters & divider visibility
+    deathGroup.style.display = appState.showDeath ? "flex" : "none";
+    trophyGroup.style.display = appState.showTrophy ? "flex" : "none";
+    divider.style.display = (appState.showDeath && appState.showTrophy) ? "block" : "none";
+
+    // effects
+    $("#bar").classList.toggle("glow", !!appState.glow);
+    $("#bar").classList.toggle("shadow", !!appState.shadow);
+
+    // text
+    $("#death").textContent = appState.deathCount;
+    $("#trophy").textContent = `${appState.currentTrophy}/${appState.maxTrophy}`;
+}
+
+function getEnabledPlatforms(){
+    return appState.platforms.filter(p=>p.enabled);
+}
+
+function rotatePlatform(){
+    const list = getEnabledPlatforms();
+    if(list.length<=1) return;
+    appState.currentPlatformIndex = (appState.currentPlatformIndex+1) % list.length;
+    save();
+    renderBar();
+}
+
+// ---------- CONTROLS ----------
+function toggleEl(el){ el.classList.toggle("on"); }
+
+function bindControls(){
+    // Tabs
+    $all(".tab-btn").forEach(btn=>btn.addEventListener("click", e=>{
+        $all(".tab-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        $all(".tab").forEach(t=>t.classList.remove("active"));
+        $("#tab-"+btn.dataset.tab).classList.add("active");
+    }));
+
+    // Geral toggles
+    $("#toggleShadow").addEventListener("click",e=>{
+        toggleEl(e.currentTarget);
+        appState.shadow = e.currentTarget.classList.contains("on"); save(); renderBar();
+    });
+    $("#toggleGlow").addEventListener("click",e=>{
+        toggleEl(e.currentTarget);
+        appState.glow = e.currentTarget.classList.contains("on"); save(); renderBar();
+    });
+
+    // Copy URLs
+    $("#copyBrowser").addEventListener("click", ()=>{
+        navigator.clipboard.writeText(location.origin+location.pathname).catch(()=>{});
+    });
+    $("#copyDock").addEventListener("click", ()=>{
+        navigator.clipboard.writeText(location.origin+location.pathname+"?dock=true").catch(()=>{});
+    });
+
+    // Counters
+    $("#incDeath").onclick=()=>{appState.deathCount++; save(); renderBar();};
+    $("#decDeath").onclick=()=>{appState.deathCount=Math.max(0,appState.deathCount-1); save(); renderBar();};
+    $("#resetDeath").onclick=()=>{appState.deathCount=0; save(); renderBar();};
+    $("#deathInput").onchange=e=>{appState.deathCount=Math.max(0, +e.target.value||0); save(); renderBar();};
+
+    $("#incT1").onclick=()=>{appState.currentTrophy=Math.min(99, appState.currentTrophy+1); save(); renderBar();};
+    $("#decT1").onclick=()=>{appState.currentTrophy=Math.max(0, appState.currentTrophy-1); save(); renderBar();};
+    $("#incT2").onclick=()=>{appState.maxTrophy=Math.min(99, appState.maxTrophy+1); if(appState.currentTrophy>appState.maxTrophy) appState.currentTrophy=appState.maxTrophy; save(); renderBar();};
+    $("#decT2").onclick=()=>{appState.maxTrophy=Math.max(1, appState.maxTrophy-1); if(appState.currentTrophy>appState.maxTrophy) appState.currentTrophy=appState.maxTrophy; save(); renderBar();};
+    $("#resetT").onclick=()=>{appState.currentTrophy=0; appState.maxTrophy=1; save(); renderBar();};
+    $("#t1").onchange=e=>{appState.currentTrophy=Math.min(99, Math.max(0, +e.target.value||0)); save(); renderBar();};
+    $("#t2").onchange=e=>{appState.maxTrophy=Math.min(99, Math.max(1, +e.target.value||1)); if(appState.currentTrophy>appState.maxTrophy) appState.currentTrophy=appState.maxTrophy; save(); renderBar();};
+
+    $("#toggleDeath").onclick=e=>{toggleEl(e.currentTarget); appState.showDeath = e.currentTarget.classList.contains("on"); save(); renderBar();};
+    $("#toggleTrophy").onclick=e=>{toggleEl(e.currentTarget); appState.showTrophy = e.currentTarget.classList.contains("on"); save(); renderBar();};
+
+    // Platforms subtabs
+    $all(".subtab-btn").forEach(btn=>btn.addEventListener("click", ()=>{
+        $all(".subtab-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        appState.activeSub = btn.dataset.sub; renderPlatforms();
+    }));
+
+    // Apply all
+    $("#applyAll").onclick=()=>{
+        const v = $("#globalUser").value.trim();
+        if(!v) return;
+        appState.platforms.forEach(p=>{ if(p.cat===appState.activeSub) p.username = v });
+        save(); renderPlatforms(); renderBar();
+    };
+
+    // Add platform
+    $("#addPlatform").onclick=()=>{
+        const name = $("#pName").value.trim();
+        const user = $("#pUser").value.trim();
+        const color = $("#pColor").value;
+        const url = $("#pIconUrl").value.trim();
+        if(!name || !color) return;
+        const id = name.toLowerCase().replace(/\s+/g,"");
+        appState.platforms.push({name:id,label:name,username:user,color,icon:null,iconUrl:url,enabled:true,cat:"custom"});
+        save(); renderPlatforms();
+        $("#pName").value=""; $("#pUser").value=""; $("#pIconUrl").value="";
+    };
+
+    // Hotkeys
+    document.addEventListener("keydown",(e)=>{
+        if(!(e.ctrlKey||e.metaKey)) return;
+        if(e.shiftKey){
+            if(e.key===']'){ e.preventDefault(); appState.deathCount++; save(); renderBar(); }
+            if(e.key==='\\'){ e.preventDefault(); appState.deathCount=0; save(); renderBar(); }
+        }else{
+            if(e.key==='['){ e.preventDefault(); appState.currentTrophy=Math.min(99, appState.currentTrophy+1); save(); renderBar(); }
+            if(e.key===']'){ e.preventDefault(); appState.maxTrophy=Math.min(99, appState.maxTrophy+1); save(); renderBar(); }
+            if(e.key==='\\'){ e.preventDefault(); appState.currentTrophy=0; appState.maxTrophy=1; save(); renderBar(); }
         }
+    });
+}
 
-        // Fallback para localStorage events
-        function setupStorageListener() {
-            window.addEventListener('storage', (event) => {
-                if (event.key === STORAGE_KEY && event.newValue && !isUpdatingFromBroadcast) {
-                    try {
-                        const newState = JSON.parse(event.newValue);
-                        if (newState && newState.timestamp !== appState.timestamp) {
-                            handleBroadcastMessage({ state: newState, type: 'state_update' });
-                        }
-                    } catch (error) {
-                        console.warn('Erro ao processar storage event:', error);
-                    }
-                }
-            });
-        }
-
-        // Processar mensagens de broadcast
-        function handleBroadcastMessage(data) {
-            if (!data.state) return;
-            
-            isUpdatingFromBroadcast = true;
-            
-            try {
-                // Atualizar estado
-                const oldState = { ...appState };
-                Object.assign(appState, data.state);
-                
-                // Atualizar UI apenas se necessário
-                updateUIFromState(oldState);
-                
-            } catch (error) {
-                console.warn('Erro ao processar broadcast:', error);
-            } finally {
-                // Usar setTimeout para evitar loops
-                setTimeout(() => {
-                    isUpdatingFromBroadcast = false;
-                }, 50);
-            }
-        }
-
-        // Broadcast otimizado com debounce
-        function broadcastState(immediate = false) {
-            if (isUpdatingFromBroadcast) return;
-            
-            // Adicionar timestamp
-            appState.timestamp = Date.now();
-            
-            // Salvar no localStorage
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
-            } catch (error) {
-                console.warn('Erro ao salvar no localStorage:', error);
-            }
-            
-            // Broadcast com debounce
-            if (immediate) {
-                sendBroadcast();
-            } else {
-                clearTimeout(broadcastTimeout);
-                broadcastTimeout = setTimeout(sendBroadcast, 16); // ~60fps
-            }
-        }
-
-        function sendBroadcast() {
-            if (!broadcastChannel || isUpdatingFromBroadcast) return;
-            
-            try {
-                broadcastChannel.postMessage({
-                    type: 'state_update',
-                    state: { ...appState },
-                    timestamp: Date.now()
-                });
-            } catch (error) {
-                console.warn('Erro ao enviar broadcast:', error);
-            }
-        }
-
-        // Atualizar UI baseado no estado
-        function updateUIFromState(oldState = {}) {
-            // Contadores
-            if (oldState.currentTrophy !== appState.currentTrophy || oldState.maxTrophy !== appState.maxTrophy) {
-                updateTrophyDisplay();
-                syncInputs();
-            }
-            
-            if (oldState.deathCount !== appState.deathCount) {
-                updateDeathDisplay();
-                syncInputs();
-            }
-            
-            // Visibilidade dos contadores
-            if (oldState.showDeathCounter !== appState.showDeathCounter || oldState.showTrophyCounter !== appState.showTrophyCounter) {
-                updateCounterVisibility();
-            }
-            
-            // Plataformas
-            if (JSON.stringify(oldState.platforms) !== JSON.stringify(appState.platforms)) {
-                renderPlatforms();
-                updateCurrentPlatform();
-            }
-            
-            // Plataforma atual
-            if (oldState.currentPlatformIndex !== appState.currentPlatformIndex) {
-                updateCurrentPlatform();
-            }
-        }
-
-        // Sincronizar inputs com o estado atual
-        function syncInputs() {
-            const currentTrophyInput = document.getElementById('currentTrophyInput');
-            const maxTrophyInput = document.getElementById('maxTrophyInput');
-            const deathInput = document.getElementById('deathInput');
-            
-            if (currentTrophyInput && currentTrophyInput.value != appState.currentTrophy) {
-                currentTrophyInput.value = appState.currentTrophy;
-            }
-            if (maxTrophyInput && maxTrophyInput.value != appState.maxTrophy) {
-                maxTrophyInput.value = appState.maxTrophy;
-            }
-            if (deathInput && deathInput.value != appState.deathCount) {
-                deathInput.value = appState.deathCount;
-            }
-        }
-
-        // Carregar dados salvos
-        function loadSavedData() {
-            try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const data = JSON.parse(saved);
-                    if (data && typeof data === 'object') {
-                        // Mesclar dados salvos com estado padrão
-                        Object.assign(appState, {
-                            currentTrophy: data.currentTrophy !== undefined ? data.currentTrophy : 0,
-                            maxTrophy: data.maxTrophy !== undefined ? data.maxTrophy : 1,
-                            deathCount: data.deathCount || 0,
-                            showDeathCounter: data.showDeathCounter !== undefined ? data.showDeathCounter : true,
-                            showTrophyCounter: data.showTrophyCounter !== undefined ? data.showTrophyCounter : true,
-                            platforms: data.platforms || appState.platforms,
-                            currentPlatformIndex: data.currentPlatformIndex || 0,
-                            timestamp: data.timestamp || Date.now()
-                        });
-                    }
-                }
-            } catch (error) {
-                console.warn('Erro ao carregar dados salvos:', error);
-            }
-        }
-
-        // Funções de contador de troféu
-        function incrementCurrentTrophy() {
-            if (appState.currentTrophy < 99) {
-                appState.currentTrophy++;
-                updateTrophyDisplay();
-                broadcastState();
-            }
-        }
-
-        function decrementCurrentTrophy() {
-            if (appState.currentTrophy > 0) {
-                appState.currentTrophy--;
-                updateTrophyDisplay();
-                broadcastState();
-            }
-        }
-
-        function incrementMaxTrophy() {
-            if (appState.maxTrophy < 99) {
-                appState.maxTrophy++;
-                updateTrophyDisplay();
-                broadcastState();
-            }
-        }
-
-        function decrementMaxTrophy() {
-            if (appState.maxTrophy > 1) {
-                appState.maxTrophy--;
-                updateTrophyDisplay();
-                broadcastState();
-            }
-        }
-
-        function updateCurrentTrophy(value) {
-            const newValue = Math.max(0, Math.min(99, parseInt(value) || 0));
-            if (newValue !== appState.currentTrophy) {
-                appState.currentTrophy = newValue;
-                updateTrophyDisplay();
-                broadcastState();
-            }
-        }
-
-        function updateMaxTrophy(value) {
-            const newValue = Math.max(1, Math.min(99, parseInt(value) || 1));
-            if (newValue !== appState.maxTrophy) {
-                appState.maxTrophy = newValue;
-                updateTrophyDisplay();
-                broadcastState();
-            }
-        }
-
-        function resetTrophies() {
-            appState.currentTrophy = 0;
-            appState.maxTrophy = 1;
-            updateTrophyDisplay();
-            document.getElementById('currentTrophyInput').value = 0;
-            document.getElementById('maxTrophyInput').value = 1;
-            broadcastState(true);
-        }
-
-        function updateTrophyDisplay() {
-            const counter = document.getElementById('trophyCounter');
-            counter.textContent = `${appState.currentTrophy}/${appState.maxTrophy}`;
-            
-            // Sincronizar inputs
-            syncInputs();
-            
-            // Animação
-            counter.classList.add('animate');
-            setTimeout(() => counter.classList.remove('animate'), 300);
-        }
-
-        // Funções de contador de morte
-        function incrementDeath() {
-            if (appState.deathCount < 999) {
-                appState.deathCount++;
-                updateDeathDisplay();
-                broadcastState();
-            }
-        }
-
-        function decrementDeath() {
-            if (appState.deathCount > 0) {
-                appState.deathCount--;
-                updateDeathDisplay();
-                broadcastState();
-            }
-        }
-
-        function updateDeathCount(value) {
-            const newValue = Math.max(0, Math.min(999, parseInt(value) || 0));
-            if (newValue !== appState.deathCount) {
-                appState.deathCount = newValue;
-                updateDeathDisplay();
-                broadcastState();
-            }
-        }
-
-        function resetDeaths() {
-            appState.deathCount = 0;
-            updateDeathDisplay();
-            document.getElementById('deathInput').value = 0;
-            broadcastState(true);
-        }
-
-        function updateDeathDisplay() {
-            const counter = document.getElementById('deathCounter');
-            counter.textContent = appState.deathCount;
-            
-            // Sincronizar inputs
-            syncInputs();
-            
-            // Animação
-            counter.classList.add('animate');
-            setTimeout(() => counter.classList.remove('animate'), 300);
-        }
-
-        function toggleDeathCounter() {
-            appState.showDeathCounter = !appState.showDeathCounter;
-            updateCounterVisibility();
-            broadcastState();
-        }
-
-        function toggleTrophyCounter() {
-            appState.showTrophyCounter = !appState.showTrophyCounter;
-            updateCounterVisibility();
-            broadcastState();
-        }
-
-        function updateCounterVisibility() {
-            const deathGroup = document.getElementById('deathCounterGroup');
-            const trophyGroup = document.getElementById('trophyCounterGroup');
-            const divider = document.getElementById('counterDivider');
-            
-            // Atualizar visibilidade
-            deathGroup.classList.toggle('hidden', !appState.showDeathCounter);
-            trophyGroup.classList.toggle('hidden', !appState.showTrophyCounter);
-            
-            // Esconder divisor apenas se ambos estão ocultos
-            const noneVisible = !appState.showDeathCounter && !appState.showTrophyCounter;
-            divider.classList.toggle('hidden', noneVisible);
-            
-            // Atualizar toggles nos controles
-            updateToggleStates();
-        }
-
-        function updateToggleStates() {
-            const deathToggle = document.querySelector('[onclick="toggleDeathCounter()"]');
-            const trophyToggle = document.querySelector('[onclick="toggleTrophyCounter()"]');
-            
-            if (deathToggle) {
-                deathToggle.classList.toggle('active', appState.showDeathCounter);
-            }
-            if (trophyToggle) {
-                trophyToggle.classList.toggle('active', appState.showTrophyCounter);
-            }
-        }
-
-        // Funções de plataforma
-        function getEnabledPlatforms() {
-            return appState.platforms.filter(p => p.enabled);
-        }
-
-        function updateCurrentPlatform() {
-            const enabledPlatforms = getEnabledPlatforms();
-            if (enabledPlatforms.length === 0) return;
-            
-            const platform = enabledPlatforms[appState.currentPlatformIndex % enabledPlatforms.length];
-            if (!platform) return;
-            
-            const streamBar = document.getElementById('streamBar');
-            const logo = document.getElementById('platformLogo');
-            const username = document.getElementById('platformUsername');
-            
-            // Atualizar classe da barra
-            streamBar.className = `stream-bar ${platform.name}`;
-            
-            // Atualizar logo
-            logo.innerHTML = platform.logo;
-            
-            // Atualizar username
-            username.textContent = platform.username;
-        }
-
-        function rotatePlatform() {
-            const enabledPlatforms = getEnabledPlatforms();
-            if (enabledPlatforms.length <= 1) return;
-            
-            const logoContainer = document.getElementById('logoContainer');
-            logoContainer.classList.add('animate');
-            
-            setTimeout(() => {
-                appState.currentPlatformIndex = (appState.currentPlatformIndex + 1) % enabledPlatforms.length;
-                updateCurrentPlatform();
-                logoContainer.classList.remove('animate');
-                broadcastState();
-            }, 250);
-        }
-
-        function togglePlatform(index) {
-            if (appState.platforms[index]) {
-                appState.platforms[index].enabled = !appState.platforms[index].enabled;
-                renderPlatforms();
-                updateCurrentPlatform();
-                broadcastState();
-            }
-        }
-
-        function removePlatform(index) {
-            if (appState.platforms.length > 1 && appState.platforms[index]) {
-                appState.platforms.splice(index, 1);
-                renderPlatforms();
-                updateCurrentPlatform();
-                broadcastState();
-            }
-        }
-
-        function updatePlatformUsername(index, username) {
-            if (appState.platforms[index]) {
-                appState.platforms[index].username = username;
-                updateCurrentPlatform();
-                broadcastState();
-            }
-        }
-
-        function applyGlobalUsername() {
-            const input = document.getElementById('globalUsernameInput');
-            const username = input.value.trim();
-            
-            if (username) {
-                appState.platforms.forEach(platform => {
-                    platform.username = username;
-                });
-                renderPlatforms();
-                updateCurrentPlatform();
-                input.value = '';
-                broadcastState();
-            }
-        }
-
-        function addPlatform() {
-            const nameInput = document.getElementById('newPlatformName');
-            const usernameInput = document.getElementById('newPlatformUsername');
-            const colorInput = document.getElementById('newPlatformColor');
-            
-            const name = nameInput.value.trim().toLowerCase().replace(/\s+/g, '');
-            const username = usernameInput.value.trim();
-            const color = colorInput.value.trim();
-            
-            if (!name || !username || !color) {
-                alert('Preencha todos os campos!');
-                return;
-            }
-            
-            // Verificar se já existe
-            if (appState.platforms.find(p => p.name === name)) {
-                alert('Plataforma já existe!');
-                return;
-            }
-            
-            const platform = {
-                name: name,
-                username: username,
-                enabled: true,
-                logo: `<circle cx="12" cy="12" r="10" fill="${color}"/><text x="12" y="16" text-anchor="middle" fill="white" font-size="8" font-weight="bold">${name.charAt(0).toUpperCase()}</text>`
-            };
-            
-            appState.platforms.push(platform);
-            
-            // Adicionar CSS para nova plataforma
-            const style = document.createElement('style');
-            const adjustedColor = adjustColor(color, -20);
-            style.textContent = `.stream-bar.${name} { background: linear-gradient(90deg, ${color} 0%, ${adjustedColor} 100%); }`;
-            document.head.appendChild(style);
-            
-            renderPlatforms();
-            updateCurrentPlatform();
-            
-            // Limpar inputs
-            nameInput.value = '';
-            usernameInput.value = '';
-            colorInput.value = '#6c5ce7';
-            
-            broadcastState();
-        }
-
-        function adjustColor(color, percent) {
-            const num = parseInt(color.replace("#", ""), 16);
-            const amt = Math.round(2.55 * percent);
-            const R = (num >> 16) + amt;
-            const G = (num >> 8 & 0x00FF) + amt;
-            const B = (num & 0x0000FF) + amt;
-            return "#" + (0x1000000 + (R < 255 ? R < 1 ? 0 : R : 255) * 0x10000 +
-                (G < 255 ? G < 1 ? 0 : G : 255) * 0x100 +
-                (B < 255 ? B < 1 ? 0 : B : 255)).toString(16).slice(1);
-        }
-
-        function renderPlatforms() {
-            const container = document.getElementById('platformControls');
-            container.innerHTML = '';
-            
-            appState.platforms.forEach((platform, index) => {
-                const item = document.createElement('div');
-                item.className = 'platform-item';
-                item.innerHTML = `
-                    <svg class="platform-logo" viewBox="0 0 24 24">${platform.logo}</svg>
-                    <input type="text" class="username-input" value="${platform.username}" 
-                           onchange="updatePlatformUsername(${index}, this.value)" placeholder="@usuario">
-                    <div class="toggle-switch ${platform.enabled ? 'active' : ''}" onclick="togglePlatform(${index})">
-                        <div class="toggle-slider"></div>
-                    </div>
-                    ${appState.platforms.length > 1 ? `<button class="counter-btn remove-platform-btn" onclick="removePlatform(${index})">×</button>` : ''}
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        // Funções de aba
-        function switchTab(tabName) {
-            // Atualizar botões
-            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Atualizar conteúdo
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(`${tabName}-tab`).classList.add('active');
-            
-            appState.activeTab = tabName;
-        }
-
-        // Funções de modo
-        function applyModes() {
-            document.body.classList.toggle('obs-mode', appState.isObsMode);
-            document.body.classList.toggle('dock-mode', appState.isDockMode);
-        }
-
-        // Atalhos de teclado
-        document.addEventListener('keydown', (event) => {
-            if (event.metaKey || event.ctrlKey) {
-                if (event.shiftKey) {
-                    switch(event.key) {
-                        case ']':
-                            event.preventDefault();
-                            incrementDeath();
-                            break;
-                        case '\\':
-                            event.preventDefault();
-                            resetDeaths();
-                            break;
-                    }
-                } else {
-                    switch(event.key) {
-                        case '[':
-                            event.preventDefault();
-                            incrementCurrentTrophy();
-                            break;
-                        case ']':
-                            event.preventDefault();
-                            incrementMaxTrophy();
-                            break;
-                        case '\\':
-                            event.preventDefault();
-                            resetTrophies();
-                            break;
-                    }
-                }
-            }
-        });
-
-        // Inicialização
-        function init() {
-            // Verificar parâmetros URL
-            const urlParams = new URLSearchParams(window.location.search);
-            appState.isObsMode = urlParams.get('obs') === 'true';
-            appState.isDockMode = urlParams.get('dock') === 'true';
-            
-            // Carregar dados salvos
-            loadSavedData();
-            
-            // Inicializar broadcast
-            initBroadcastChannel();
-            
-            // Aplicar modos
-            applyModes();
-            
-            // Renderizar UI inicial
-            updateTrophyDisplay();
-            updateDeathDisplay();
-            updateCounterVisibility();
-            renderPlatforms();
-            updateCurrentPlatform();
-            
-            // Atualizar inputs
-            document.getElementById('currentTrophyInput').value = appState.currentTrophy;
-            document.getElementById('maxTrophyInput').value = appState.maxTrophy;
-            document.getElementById('deathInput').value = appState.deathCount;
-            
-            // Iniciar rotação de plataformas
-            setInterval(rotatePlatform, 5000);
-            
-            console.log('PlayJEGUE Stream Bar inicializado!');
-        }
-
-        // Inicializar quando a página carregar
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-
-        // Funções para copiar URLs
-        function copyBrowserUrl() {
-            const baseUrl = window.location.origin + window.location.pathname;
-            navigator.clipboard.writeText(baseUrl).then(() => {
-                showNotification('URL do Browser copiada!');
-            }).catch(() => {
-                showNotification('Erro ao copiar URL');
-            });
-        }
-
-        function copyDockUrl() {
-            const baseUrl = window.location.origin + window.location.pathname;
-            const dockUrl = baseUrl + '?dock=true';
-            navigator.clipboard.writeText(dockUrl).then(() => {
-                showNotification('URL do Dock copiada!');
-            }).catch(() => {
-                showNotification('Erro ao copiar URL');
-            });
-        }
-
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: #28a745;
-                color: white;
-                padding: 10px 15px;
-                border-radius: 6px;
-                font-size: 12px;
-                font-weight: bold;
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => notification.remove(), 300);
-            }, 2000);
-        }
-
-        // Adicionar animações CSS
-        const style = document.createElement('style');
-        style.textContent = `
-            @keyframes slideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes slideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
+function renderPlatforms(){
+    const list = $("#platList"); list.innerHTML="";
+    const filtered = appState.platforms.filter(p=>p.cat===appState.activeSub);
+    filtered.forEach((p, idx)=>{
+        const i = document.createElement("div");
+        i.className = "plat-item";
+        i.innerHTML = `
+            <svg viewBox="0 0 24 24" class="plat-logo">${p.icon ? p.icon : (p.iconUrl ? `<image href="${p.iconUrl}" width="24" height="24"/>`:"")}</svg>
+            <input type="text" value="${p.username||""}" placeholder="@usuario"/>
+            <div class="toggle ${p.enabled?'on':''}"></div>
+            <input type="color" value="${p.color}"/>
+            <button class="btn">Remover</button>
         `;
-        document.head.appendChild(style);
+        const [inp, tog, col, rem] = [i.children[1], i.children[2], i.children[3], i.children[4]];
+        inp.onchange = e=>{ p.username = e.target.value.trim(); save(); renderBar(); };
+        tog.onclick = ()=>{ tog.classList.toggle("on"); p.enabled = tog.classList.contains("on"); save(); renderBar(); };
+        col.onchange = e=>{ p.color = e.target.value; save(); renderBar(); };
+        rem.onclick = ()=>{
+            const idxGlobal = appState.platforms.findIndex(pp=>pp===p);
+            if(idxGlobal>-1){ appState.platforms.splice(idxGlobal,1); save(); renderPlatforms(); renderBar(); }
+        };
+        list.appendChild(i);
+    });
+}
 
-        // Função para forçar atualização no OBS
-        function forceRefresh() {
-            // Força um broadcast imediato
-            broadcastState(true);
-            
-            // Força re-render completo
-            updateTrophyDisplay();
-            updateDeathDisplay();
-            updateCounterVisibility();
-            renderPlatforms();
-            updateCurrentPlatform();
-            
-            showNotification('OBS atualizado com sucesso!');
-        }
+// ---------- INIT ----------
+bindControls();
+renderPlatforms();
+setInterval(rotatePlatform, 5000);
+renderBar();
 
-        // Cleanup ao fechar
-        window.addEventListener('beforeunload', () => {
-            if (broadcastChannel) {
-                broadcastChannel.close();
-            }
-        });
-    </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9791fd529346f202',t:'MTc1Njg2ODM1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+// In OBS-only mode, you can hide the panel automatically
+if(appState.isObs){ document.getElementById("panel").style.display="none"; }
+
+</script>
+</body>
 </html>
