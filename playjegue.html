@@ -1249,6 +1249,7 @@
                     window.history.replaceState({}, '', newUrl);
                 } else {
                     dockModeBtn.textContent = '🔧 Modo Dock';
+                    
                     // Remover parâmetro da URL
                     const newUrl = new URL(window.location);
                     newUrl.searchParams.delete('dock');
