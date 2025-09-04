@@ -1,5 +1,7 @@
 /* ====== I18N ====== */
-const I18N = { "pt-BR": { Idioma: "Idioma", Geral: "Geral", Contadores: "Contadores", Plataformas: "Plataformas", Instrucoes: "Instruções", LogoBox: "Logo-box" }, "en": { Idioma: "Language", Geral: "General", Contadores: "Counters", Plataformas: "Platforms", Instrucoes: "Instructions", LogoBox: "Logo box" } };
+const I18N = { 
+  "pt-BR": { Idioma: "Idioma", Geral: "Geral", Contadores: "Contadores", Plataformas: "Plataformas", Instrucoes: "Instruções", LogoBox: "Logo-box", Reset: "Zerar" }, 
+  "en": { Idioma: "Language", Geral: "General", Contadores: "Counters", Plataformas: "Platforms", Instrucoes: "Instructions", LogoBox: "Logo box", Reset: "Reset" } };
 
 /* ====== Defaults & State ====== */
 const STORAGE = 'playjegue_stream_state_v6';
@@ -12,7 +14,7 @@ const DEFAULT_PLATFORMS = [
   { name: 'discord', label: 'Discord', username: '', enabled: false, color: '#7289da', iconKey: 'discord', iconUrl: '', category: 'redes' },
   { name: 'playstation', label: 'PlayStation', username: '', enabled: false, color: '#0070d1', iconKey: 'playstation', iconUrl: '', category: 'consoles' },
   { name: 'xbox', label: 'Xbox', username: '', enabled: false, color: '#107c10', iconKey: 'xbox', iconUrl: '', category: 'consoles' },
-  { name: 'custom', label: 'CUSTOM', username: '@PlayJEGUE', enabled: true, color: '#734500', iconKey: '', iconUrl: 'PLAY_JEGUE_LOGO_1x1.png', category: 'custom', gradient: true, gradientFrom: '#000000', gradientTo: '#808080' }
+  { name: 'custom', label: 'CUSTOM', username: 'playjegue.vercel.app', enabled: true, color: '#734500', iconKey: '', iconUrl: 'PLAY_JEGUE_LOGO_1x1.png', category: 'custom' }
 ];
 
 let state = {
@@ -20,7 +22,7 @@ let state = {
   trophyCur: 0, trophyMax: 1, showTrophy: true,
   platforms: [], currentIndex: 0,
   rotate: true, transitionSec: 5,
-  barW: 450, barH: 50, barR: 50, barAlpha: 0,
+  barW: 450, barH: 50, barR: 50, barAlpha: 1,
   mainConsole: 'playstation',
   lang: (navigator.language && navigator.language.startsWith('pt-BR')) ? 'pt-BR' : 'en',
   currentTab: 'contadores',
@@ -39,7 +41,7 @@ const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 function idbOpen() {
   return new Promise((res) => {
     if (!window.indexedDB)
-      return res(null); const req = indexedDB.open('PlayJEGUEDB', 4);
+      return res(null); const req = indexedDB.open('PlayJEGUEDB', 5);
     req.onupgradeneeded = (e) => {
       const db = e.target.result;
       if (!db.objectStoreNames.contains('states')) db.createObjectStore('states', { keyPath: 'id' });
@@ -176,8 +178,8 @@ function renderBar(triggerBounce) {
   else { logoBox.innerHTML = `<img id="barLogo" alt="logo" src="PLAY_JEGUE_LOGO_1x1.png">`; }
 
   const bar = $('#bar');
-  if (p.gradient) { bar.style.background = `linear-gradient(90deg, rgba(0,0,0,${state.barAlpha}), rgba(128,128,128,${state.barAlpha}))`; }
-  else { bar.style.background = `linear-gradient(90deg, ${p.color}, #000000)`; bar.style.opacity = 1 - parseFloat(state.barAlpha || 0); }
+  bar.style.background = `linear-gradient(90deg, ${p.color}, rgba(90,90,90,0.01))`; 
+  bar.style.opacity = parseFloat(state.barAlpha || 1);
 
   if (state.mainConsole === 'xbox') { $('#psTrophy').classList.add('hidden'); $('#xboxGem').classList.remove('hidden'); } else { $('#xboxGem').classList.add('hidden'); $('#psTrophy').classList.remove('hidden'); }
 
@@ -199,7 +201,7 @@ function renderPlatformLists() {
     else if (p.iconKey) { const fa = PLATFORM_ICONS[p.iconKey] || 'fa-regular fa-circle'; icon.innerHTML = `<i class="${fa}"></i>`; }
     else { icon.innerHTML = `<img src="PLAY_JEGUE_LOGO_1x1.png" style="width:28px;height:28px;object-fit:contain" />`; }
     const user = document.createElement('input'); user.type = 'text'; user.value = p.username || ''; user.placeholder = '@usuario'; user.addEventListener('change', e => { p.username = e.target.value.trim(); save(); renderBar(); });
-    const color = document.createElement('input'); color.type = 'color'; color.value = p.color || '#6c5ce7'; color.addEventListener('change', e => { p.color = e.target.value; save(); renderBar(); });
+    const color = document.createElement('input'); color.type = 'color'; color.value = p.color || '#ffffff'; color.addEventListener('change', e => { p.color = e.target.value; save(); renderBar(); });
     const toggle = document.createElement('div'); toggle.className = 'toggle ' + (p.enabled ? 'on' : ''); toggle.addEventListener('click', () => { toggle.classList.toggle('on'); p.enabled = toggle.classList.contains('on'); save(); renderBar(true); startRotation(); });
     row.appendChild(icon); row.appendChild(user); row.appendChild(color); row.appendChild(toggle);
     list.appendChild(row);
@@ -285,7 +287,12 @@ function updateIdField(){
 }
 
 /* ====== i18n visuals ====== */
-function applyI18n() { const t = I18N[state.lang] || I18N['pt-BR']; $('#lblLang').textContent = t.Idioma; const map = { contadores: t.Contadores, plataformas: t.Plataformas, instrucoes: t.Instrucoes, geral: t.Geral }; $$('.tab-btn').forEach(b => b.textContent = map[b.dataset.tab]); $('#language').value = state.lang; }
+function applyI18n() { 
+  const t = I18N[state.lang] || I18N['pt-BR']; 
+  $('#lblLang').textContent = t.Idioma; 
+  const map = { contadores: t.Contadores, plataformas: t.Plataformas, instrucoes: t.Instrucoes, geral: t.Geral, reset: t.Reset}; 
+  $$('.tab-btn').forEach(b => b.textContent = map[b.dataset.tab]);
+  $('#language').value = state.lang; }
 
 function initAfterLoad(skipTabRestore) {
   // try load by id from DB when present
