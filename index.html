@@ -134,10 +134,10 @@
       <div class="card">
         <label>Propriedades da barra</label>
         <div class="row" style="align-items:center;">
-          <div style="min-width:120px"><label>Largura (px)</label><input id="barW" class="slider" type="range" min="240" max="1920" value="450"><span id="barWVal">450</span></div>
-          <div style="min-width:120px"><label>Altura (px)</label><input id="barH" class="slider" type="range" min="24" max="100" value="50"><span id="barHVal">50</span></div>
+          <div style="min-width:120px"><label>Largura (px)</label><input id="barW" class="slider" type="range" step="5" min="350" max="1920" value="450"><span id="barWVal">450</span></div>
+          <div style="min-width:120px"><label>Altura (px)</label><input id="barH" class="slider" type="range" min="35" max="100" value="50"><span id="barHVal">50</span></div>
           <div style="min-width:120px"><label>Cantos (px)</label><input id="barR" class="slider" type="range" min="1" max="50" value="50"><span id="barRVal">50</span></div>
-          <div style="min-width:120px"><label>Transparência</label><input id="barAlpha" class="slider" type="range" min="0" max="1" step="0.01" value="0"><span id="barAlphaVal">0</span></div>
+          <div style="min-width:120px"><label>Transparência</label><input id="barAlpha" class="slider" type="range" min="0" max="1" step="0.01" value="1"><span id="barAlphaVal">0</span></div>
         </div>
         <div style="margin-top:8px" class="row">
           <button id="applyStyle" class="btn small">Aplicar</button>
@@ -147,8 +147,8 @@
       <div class="card">
         <label>Logo-box</label>
         <div class="row" style="align-items:center;">
-          <div style="display:flex;align-items:center;gap:8px"><div id="logoToggle" class="toggle on"></div><span>Habilitar caixa</span></div>
-          <div><label>Tamanho</label><input id="logoSize" type="range" min="24" max="160" value="65"><span id="logoSizeVal">65</span></div>
+          <div style="display:flex;align-items:center;gap:8px"><div id="logoToggle" class="toggle on"></div><span>Habilitar</span></div>
+          <div><label>Tamanho</label><input id="logoSize" type="range" min="65" max="160" value="65"><span id="logoSizeVal">65</span></div>
           <div>
             <label>Cor de fundo</label>
             <select id="logoColor">
@@ -158,9 +158,9 @@
             <input id="logoBgPicker" type="color" value="#ffffff" title="Cor personalizada">
           </div>
           <div style="display:flex;align-items:center;gap:8px"><div id="logoBorderToggle" class="toggle on"></div><span>Borda visível</span></div>
-          <div><label>Espessura</label><input id="logoBorderWidth" type="range" min="0" max="8" value="1"><span id="logoBorderWidthVal">1</span></div>
+          <div><label>Espessura</label><input id="logoBorderWidth" type="range" min="1" max="5" value="1"><span id="logoBorderWidthVal">1</span></div>
           <div><label>Cor</label><input id="logoBorderColor" type="color" value="#ffffff"></div>
-          <div><label>Raio</label><input id="logoRadius" type="range" min="0" max="200" value="999"><span id="logoRadiusVal">999</span></div>
+          <div><label>Raio</label><input id="logoRadius" type="range" min="1" max="50" value="15"><span id="logoRadiusVal">999</span></div>
         </div>
       </div>
       <div class="card" hidden>
