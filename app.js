@@ -14,7 +14,7 @@ const DEFAULT_PLATFORMS = [
   { name: 'discord', label: 'Discord', username: '', enabled: false, color: '#7289da', iconKey: 'discord', iconUrl: '', category: 'redes' },
   { name: 'playstation', label: 'PlayStation', username: '', enabled: false, color: '#0070d1', iconKey: 'playstation', iconUrl: '', category: 'consoles' },
   { name: 'xbox', label: 'Xbox', username: '', enabled: false, color: '#107c10', iconKey: 'xbox', iconUrl: '', category: 'consoles' },
-  { name: 'custom', label: 'CUSTOM', username: 'playjegue.vercel.app', enabled: true, color: '#734500', iconKey: '', iconUrl: 'PLAY_JEGUE_LOGO_1x1.png', category: 'custom' }
+  { name: 'custom', label: 'CUSTOM', username: 'Streamer BAR', enabled: true, color: '#734500', iconKey: '', iconUrl: 'PLAY_JEGUE_LOGO_1x1.png', category: 'custom' }
 ];
 
 let state = {
@@ -22,7 +22,7 @@ let state = {
   trophyCur: 0, trophyMax: 1, showTrophy: true,
   platforms: [], currentIndex: 0,
   rotate: true, transitionSec: 5,
-  barW: 450, barH: 50, barR: 50, barAlpha: 1,
+  barW: 455, barH: 60, barR: 50, barAlpha: 1,
   mainConsole: 'playstation',
   lang: (navigator.language && navigator.language.startsWith('pt-BR')) ? 'pt-BR' : 'en',
   currentTab: 'contadores',
@@ -178,7 +178,7 @@ function renderBar(triggerBounce) {
   else { logoBox.innerHTML = `<img id="barLogo" alt="logo" src="PLAY_JEGUE_LOGO_1x1.png">`; }
 
   const bar = $('#bar');
-  bar.style.background = `linear-gradient(90deg, ${p.color}, rgba(90,90,90,0.01))`; 
+  bar.style.background = `${p.color}`; // `linear-gradient(90deg, ${p.color}, ${hexToRgb(p.color, 20)})`; 
   bar.style.opacity = parseFloat(state.barAlpha || 1);
 
   if (state.mainConsole === 'xbox') { $('#psTrophy').classList.add('hidden'); $('#xboxGem').classList.remove('hidden'); } else { $('#xboxGem').classList.add('hidden'); $('#psTrophy').classList.remove('hidden'); }
@@ -188,6 +188,23 @@ function renderBar(triggerBounce) {
   $('#deathCount').style.minWidth = (20 + digits * 8) + 'px';
 
   if (triggerBounce && state.iconAnim) { const elIcon = logoBox.firstElementChild; if (elIcon) { elIcon.classList.remove('bounce'); void elIcon.offsetWidth; elIcon.classList.add('bounce'); } }
+}
+
+function hexToRgb(hex, percent) {
+  // Remove '#' if present
+  let cleanHex = hex.startsWith("#") ? hex.slice(1) : hex;
+
+  // Handle shorthand hex codes (e.g., "FFF" to "FFFFFF")
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex.split('').map(char => char + char).join('');
+  }
+
+  // Parse R, G, B values
+  const r = parseInt(cleanHex.substring(0, 2), 16);
+  const g = parseInt(cleanHex.substring(2, 4), 16);
+  const b = parseInt(cleanHex.substring(4, 6), 16);
+
+  return `rgba(${r}, ${g}, ${b}) ${percent}%`;
 }
 
 function renderPlatformLists() {
