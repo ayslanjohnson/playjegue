@@ -1,199 +1,474 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>PlayJEGUE Stream Bar • Widget</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous">
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayJEGUE Stream Bar • Widget</title>
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="bar-wrap">
-      <div class="glow-ring" id="glowRing" style="display:none"></div>
-      <div id="bar" class="stream-bar" role="region" aria-label="PlayJEGUE bar">
-        <div class="logo-box" id="logoBox"><img id="barLogo" alt="logo" src="PLAY_JEGUE_LOGO_1x1.png"></div>
-        <div id="barUser" class="user">@PlayJEGUE</div>
-        <div class="counters" aria-live="polite">
-          <div id="deathGroup" class="death-row">
-            <i id="skullIcon" class="fa-solid fa-skull fa-skull" aria-hidden="true"></i>
-            <div id="deathCount" class="counter" style="min-width:30px;text-align:right">0</div>
-          </div>
-          <div id="divider" class="divider"></div>
-          <div id="trophyGroup" class="row" style="align-items:center">
-            <img id="psTrophy" class="" src="trofeu.png" alt="trophy" style="width:25px;height:25px;object-fit:contain">
-            <i id="xboxGem" class="fa-regular fa-gem fa-fw hidden" aria-hidden="true"></i>
-            <div id="trophyCount" class="counter">0/1</div>
-          </div>
+    <!-- Navbar -->
+    <div class="container my-4">
+        <!-- Preview da Barra -->
+        <div class="preview-section">
+            <div class="bar-wrap">
+                <div class="logo-box" id="logoBox">
+                    <img id="barLogo" alt="logo" src="./PLAY_JEGUE_LOGO_1x1.png">
+                </div>
+                <div id="bar" class="stream-bar" role="region" aria-label="PlayJEGUE bar">
+                    <div class="trophy-progress" id="trophyProgress"></div>
+                    <div id="barUser" class="user">@PlayJEGUE</div>
+                    <div class="counters" aria-live="polite">
+                        <div id="deathGroup" class="death-row">
+                            <i id="skullIcon" class="fa-solid fa-skull" aria-hidden="true"></i>
+                            <div id="deathCount" class="counter">0</div>
+                        </div>
+                        <div id="divider" class="divider"></div>
+                        <div id="trophyGroup" class="d-flex align-items-center">
+                            <img id="psTrophy" src="./trofeu.png" alt="trophy">
+                            <i id="xboxGem" class="fa-regular fa-gem fa-fw d-none" aria-hidden="true"></i>
+                            <div id="trophyCount" class="counter">0/1</div>
+                        </div>
+                    </div>
+                    <div id="stream-bar-gradient" class="stream-bar"></div>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-gamepad me-2"></i>PlayJEGUE
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <div class="navbar-nav ms-auto">
+                        <div class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="fas fa-language me-1"></i> <span id="lblLang">Idioma</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark">
+                                <li>
+                                    <select id="language" class="form-select bg-dark text-light border-0">
+                                        <option value="pt-BR">Português (BR)</option>
+                                        <option value="en">English</option>
+                                    </select>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+
+        <!-- Painel de Controle -->
+        <div class="panel">
+            <div class="card card-custom mb-3" id="function-buttons">
+                <div class="card-body" >
+                    <div class="id-section">
+                        <div>
+                            <label for="currentId" class="form-label" data-i18n="ID">ID</label>
+                            <input id="currentId" type="text" class="form-control" readonly>
+                        </div>
+                        <div class="button-group d-flex gap-2">
+                            <button id="copySource" class="btn btn-custom btn-icon" title="Copiar URL Source">
+                                <i class="fas fa-display"></i>
+                            </button>
+                            <button id="copyDock" class="btn btn-custom btn-icon" title="Copiar URL Dock">
+                                <i class="fas fa-gamepad"></i>
+                            </button>
+                            <button id="exportBtn" class="btn btn-custom btn-icon" title="Exportar JSON">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button id="importBtn" class="btn btn-custom btn-icon" title="Importar JSON">
+                                <i class="fas fa-upload"></i>
+                            </button>
+                            <button id="refreshBtn" class="btn btn-custom btn-icon" title="Atualizar">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabs de Navegação -->
+            <ul class="nav nav-tabs mb-3" id="mainTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="contadores-tab" data-bs-toggle="tab"
+                        data-bs-target="#contadores" type="button" role="tab" data-tab="contadores">
+                        <i class="fas fa-tachometer-alt me-1"></i> <span data-i18n="Contadores">Contadores</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="plataformas-tab" data-bs-toggle="tab" data-bs-target="#plataformas"
+                        type="button" role="tab" data-tab="plataformas">
+                        <i class="fas fa-th-large me-1"></i> <span data-i18n="Plataformas">Plataformas</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="instrucoes-tab" data-bs-toggle="tab" data-bs-target="#instrucoes"
+                        type="button" role="tab" data-tab="instrucoes">
+                        <i class="fas fa-info-circle me-1"></i> <span data-i18n="Instrucoes">Instruções</span>
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="geral-tab" data-bs-toggle="tab" data-bs-target="#geral" type="button"
+                        role="tab" data-tab="geral">
+                        <i class="fas fa-cog me-1"></i> <span data-i18n="Geral">Geral</span>
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Conteúdo das Tabs -->
+            <div class="tab-content" id="mainTabsContent">
+                <!-- CONTADORES -->
+                <div class="tab-pane fade show active" id="contadores" role="tabpanel">
+                    <div class="card card-custom mb-3">
+                        <div class="card-body">
+                            <label class="form-label" data-i18n="Mortes">Mortes</label>
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <button class="btn btn-custom" id="dMinus">-</button>
+                                <input id="dInput" type="number" class="form-control" style="width: 80px;" value="0"
+                                    min="0" step="1">
+                                <button class="btn btn-custom" id="dPlus">+</button>
+                                <button class="btn btn-custom" id="dReset" data-i18n="Zerar">Zerar</button>
+                                <div class="toggle on" id="toggleDeath"></div>
+                                <label class="ms-2 mb-0" data-i18n="MostrarMortes">Mostrar Mortes</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card card-custom">
+                        <div class="card-body">
+                            <label class="form-label" data-i18n="Trofeus">Troféus (Atual / Máximo)</label>
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <button class="btn btn-custom" id="tMinus">-</button>
+                                <input id="tCurrent" type="number" class="form-control" style="width: 80px;" value="0"
+                                    min="0" step="1">
+                                <button class="btn btn-custom" id="tPlus">+</button>
+                                <div style="width: 10px;"></div>
+                                <button class="btn btn-custom" id="mMinus">-</button>
+                                <input id="tMax" type="number" class="form-control" style="width: 80px;" value="1"
+                                    min="1" step="1">
+                                <button class="btn btn-custom" id="mPlus">+</button>
+                                <button class="btn btn-custom" id="tReset" data-i18n="Zerar">Zerar</button>
+                                <div class="toggle on" id="toggleTrophy"></div>
+                                <label class="ms-2 mb-0" data-i18n="MostrarTrofeus">Mostrar Troféus</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PLATAFORMAS -->
+                <div class="tab-pane fade" id="plataformas" role="tabpanel">
+                    <div class="card card-custom">
+                        <div class="card-body">
+                            <label class="form-label" data-i18n="UsuarioGlobal">Usuário global (aplica na sub-aba
+                                ativa)</label>
+                            <div class="d-flex gap-2 mb-3">
+                                <input id="globalUser" type="text" class="form-control" placeholder="@usuario">
+                                <button id="applyAll" class="btn btn-custom" data-i18n="Aplicar">Aplicar</button>
+                            </div>
+
+                            <div class="subtabs">
+                                <button class="sub-btn active" data-sub="principais"
+                                    data-i18n="Principais">Principais</button>
+                                <button class="sub-btn" data-sub="consoles" data-i18n="Consoles">Consoles</button>
+                                <button class="sub-btn" data-sub="redes" data-i18n="Redes">Redes</button>
+                                <button class="sub-btn" data-sub="custom" data-i18n="Custom">Custom</button>
+                            </div>
+
+                            <div class="platform-list" id="platformList">
+                                <!-- Plataformas serão renderizadas aqui via JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INSTRUÇÕES -->
+                <div class="tab-pane fade" id="instrucoes" role="tabpanel">
+                    <div class="card card-custom">
+                        <div class="card-body">
+                            <label class="form-label" data-i18n="OBS">OBS</label>
+                            <div style="color: var(--muted-text); line-height: 1.6;">
+                                <ul style="margin: 0 0 0 18px; padding: 0; list-style: disc;">
+                                    <li data-i18n="Instrucao1">Source (barra): use a URL <strong>sem
+                                            parâmetros</strong>. Ela já carrega/gera um <strong>id</strong>
+                                        automaticamente.</li>
+                                    <li data-i18n="Instrucao2">Dock (controles): use <code>?dock=true</code> na mesma
+                                        URL. O <strong>id</strong> deve ser o mesmo do Source.</li>
+                                    <li data-i18n="Instrucao3">Os botões acima já copiam as URLs corretas, incluindo
+                                        <code>&id=</code>.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GERAL -->
+                <div class="tab-pane fade" id="geral" role="tabpanel">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="general-tabs">
+                                <button class="general-tab active" data-tab="barra" data-i18n="Barra">Barra</button>
+                                <button class="general-tab" data-tab="logo" data-i18n="LogoBox">Logo-box</button>
+                                <button class="general-tab" data-tab="efeitos" data-i18n="Efeitos">Efeitos</button>
+                                <button class="general-tab" data-tab="progresso"
+                                    data-i18n="Progresso">Progresso</button>
+                                <button class="general-tab" data-tab="reset" data-i18n="Reset">Reset</button>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <!-- Sub-aba: Barra -->
+                            <div class="general-tab-content active" id="general-barra">
+                                <div class="card card-custom mb-3">
+                                    <div class="card-body">
+                                        <label class="form-label" data-i18n="PlataformaPrincipal">Plataforma principal
+                                            de console</label>
+                                        <select id="mainConsole" class="form-select">
+                                            <option value="playstation">PlayStation</option>
+                                            <option value="xbox">Xbox</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="card card-custom">
+                                    <div class="card-body">
+                                        <label class="form-label" data-i18n="PropriedadesBarra">Propriedades da
+                                            barra</label>
+                                        <div class="row g-3">
+                                            <div class="col-md-6 col-lg-3">
+                                                <label class="form-label" data-i18n="Largura">Largura (px)</label>
+                                                <input id="barW" type="range" class="form-range" step="5" min="350" max="1920"
+                                                    value="450">
+                                                <div class="slider-value"><span id="barWVal">450</span>px</div>
+                                            </div>
+                                            <div class="col-md-6 col-lg-3">
+                                                <label class="form-label" data-i18n="Altura">Altura (px)</label>
+                                                <input id="barH" type="range" class="form-range" min="35" max="100"
+                                                    value="50">
+                                                <div class="slider-value"><span id="barHVal">50</span>px</div>
+                                            </div>
+                                            <div class="col-md-6 col-lg-3">
+                                                <label class="form-label" data-i18n="Cantos">Cantos (px)</label>
+                                                <input id="barR" type="range" class="form-range" min="1" max="50"
+                                                    value="50">
+                                                <div class="slider-value"><span id="barRVal">50</span>px</div>
+                                            </div>
+                                            <div class="col-md-6 col-lg-3">
+                                                <label class="form-label"
+                                                    data-i18n="Transparencia">Transparência</label>
+                                                <input id="barAlpha" type="range" class="form-range" min="0" max="1"
+                                                    step="0.01" value="1">
+                                                <div class="slider-value"><span id="barAlphaVal">1</span></div>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex gap-2 mt-3">
+                                            <button id="applyStyle" class="btn btn-custom"
+                                                data-i18n="Aplicar">Aplicar</button>
+                                            <button id="defaultStyle" class="btn btn-custom"
+                                                data-i18n="Padrao">Padrão</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sub-aba: Logo-box -->
+                            <div class="general-tab-content" id="general-logo">
+                                <div class="card card-custom">
+                                    <div class="card-body">
+                                        <label class="form-label" data-i18n="LogoBox">Logo-box</label>
+                                        <div class="logo-config-grid">
+                                            <div class="config-group">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="toggle on" id="logoToggle"></div>
+                                                    <label data-i18n="Habilitar">Habilitar</label>
+                                                </div>
+                                                <div class="slider-container">
+                                                    <label data-i18n="Tamanho">Tamanho</label>
+                                                    <input id="logoSize" type="range" class="form-range" min="40"
+                                                        max="120" value="65">
+                                                    <div class="slider-value"><span id="logoSizeVal">65</span>px</div>
+                                                </div>
+                                            </div>
+                                            <div class="config-group">
+                                                <label data-i18n="CorFundo">Cor de fundo</label>
+                                                <select id="logoColor" class="form-select">
+                                                    <option value="auto" data-i18n="Automatica">Automática (cor da
+                                                        plataforma)</option>
+                                                    <option value="custom" data-i18n="Personalizada">Personalizada
+                                                    </option>
+                                                </select>
+                                                <div class="d-flex align-items-center gap-2 mt-2">
+                                                    <input id="logoBgPicker" type="color"
+                                                        class="form-control form-control-color" value="#ffffff"
+                                                        title="Escolha a cor">
+                                                    <label data-i18n="CorPersonalizada">Cor personalizada</label>
+                                                </div>
+                                            </div>
+                                            <div class="config-group">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="toggle on" id="logoBorderToggle"></div>
+                                                    <label data-i18n="BordaVisivel">Borda visível</label>
+                                                </div>
+                                                <div class="slider-container">
+                                                    <label data-i18n="Espessura">Espessura</label>
+                                                    <input id="logoBorderWidth" type="range" class="form-range" min="1"
+                                                        max="5" value="1">
+                                                    <div class="slider-value"><span id="logoBorderWidthVal">1</span>px
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mt-2">
+                                                    <input id="logoBorderColor" type="color"
+                                                        class="form-control form-control-color" value="#ffffff"
+                                                        title="Escolha a cor">
+                                                    <label data-i18n="CorBorda">Cor da borda</label>
+                                                </div>
+                                            </div>
+                                            <div class="config-group">
+                                                <div class="slider-container">
+                                                    <label data-i18n="Raio">Raio dos cantos</label>
+                                                    <input id="logoRadius" type="range" class="form-range" min="1"
+                                                        max="50" value="15">
+                                                    <div class="slider-value"><span id="logoRadiusVal">15</span>px</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sub-aba: Efeitos -->
+                            <div class="general-tab-content" id="general-efeitos">
+                                <div class="card card-custom">
+                                    <div class="card-body">
+                                        <label class="form-label" data-i18n="EfeitosVisuais">Efeitos Visuais</label>
+                                        <div class="logo-config-grid">
+                                            <div class="config-group hidden">
+                                                <div class="d-flex align-items-center gap-2 ">
+                                                    <div class="toggle hidden disabled" id="toggleGlow" disabled></div>
+                                                    <label data-i18n="GlowAnimado">Glow animado</label>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mt-2">
+                                                    <input id="glowColor" type="color"
+                                                        class="form-control form-control-color" value="#6c5ce7"
+                                                        title="Escolha a cor">
+                                                    <label data-i18n="CorGlow">Cor do Glow</label>
+                                                </div>
+                                            </div>
+                                            <div class="config-group hidden">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="toggle" id="toggleShadow"></div>
+                                                    <label data-i18n="Sombra">Sombra</label>
+                                                </div>
+                                                <div class="slider-container">
+                                                    <label data-i18n="IntensidadeSombra">Intensidade Sombra</label>
+                                                    <input id="shadowAmt" type="range" class="form-range" min="0"
+                                                        max="1" step="0.05" value="0.4">
+                                                    <div class="slider-value"><span id="shadowVal">0.4</span></div>
+                                                </div>
+                                            </div>
+                                            <div class="config-group">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="toggle on" id="toggleIconAnim"></div>
+                                                    <label data-i18n="AnimacaoIcone">Animação de ícone</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sub-aba: Progresso -->
+                            <div class="general-tab-content" id="general-progresso">
+                                <div class="card card-custom">
+                                    <div class="card-body">
+                                        <label class="form-label" data-i18n="ProgressoTrofeus">Progresso de
+                                            Troféus</label>
+                                        <div class="logo-config-grid">
+                                            <div class="config-group">
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="toggle on" id="toggleTrophyProgress"></div>
+                                                    <label data-i18n="HabilitarProgresso">Habilitar Progresso</label>
+                                                </div>
+                                            </div>
+                                            <div class="config-group">
+                                                <div class="d-flex align-items-center gap-2 mt-2">
+                                                    <input id="trophyProgressColor" type="color"
+                                                        class="form-control form-control-color" value="#37c976"
+                                                        title="Escolha a cor">
+                                                    <label data-i18n="CorProgresso">Cor do Progresso</label>
+                                                </div>
+                                            </div>
+                                            <div class="config-group">
+                                                <div class="slider-container">
+                                                    <label data-i18n="AlturaProgresso">Altura da Barra de
+                                                        Progresso</label>
+                                                    <input id="trophyProgressHeight" type="range" class="form-range"
+                                                        min="3" max="6" value="3">
+                                                    <div class="slider-value"><span
+                                                            id="trophyProgressHeightVal">3</span>px</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sub-aba: Reset -->
+                            <div class="general-tab-content" id="general-reset">
+                                <div class="card card-custom">
+                                    <div class="card-body">
+                                        <h5 data-i18n="ResetConfiguracoes">Reset de Configurações</h5>
+                                        <p data-i18n="ResetDescricao">Esta ação redefinirá todas as configurações para
+                                            os valores padrão. Esta ação não pode ser desfeita.</p>
+                                        <button id="resetAll" class="btn btn-custom" data-i18n="ResetarTudo">
+                                            <i class="fas fa-trash-alt"></i>
+                                            Resetar tudo para o padrão
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <br>
+
+        <!-- Seção de Doação -->
+        <div class="donation-section">
+            <h3 data-i18n="ApoieOProjeto">Apoie o projeto</h3>
+            <p data-i18n="DoacaoDescricao">Ajude a manter o PlayJEGUE! Faça uma doação via LivePix.</p>
+            <a href="https://livepix.gg/playjegue" target="_blank" class="donation-btn">
+                <i class="fas fa-heart"></i>
+                <span data-i18n="DoarAgora">Doar agora</span>
+            </a>
+        </div>
+
+        <footer class="mt-5">
+            <div data-i18n="PropriedadesWidget">Widget PlayJEGUE v1.0.4 — URL <a href="#"
+                    target="_blank">playjegue.vercel.app</a></div>
+            <div>&copy; <span id="year"></span> PlayJEGUE — <span data-i18n="DireitosReservados">Código desta página
+                    licenciado para PlayJEGUE.</span></div>
+        </footer>
     </div>
-  </div>
 
-  <div class="panel" id="panel">
-    <div class="row top-actions">
-      <div class="lang">
-        <label id="lblLang">Idioma</label>
-        <select id="language">
-          <option value="pt-BR">PT-BR</option>
-          <option value="en">EN</option>
-        </select>
-      </div>
-      <button id="copySource" class="btn">Copiar URL Source</button>
-      <button id="copyDock" class="btn">Copiar URL Dock</button>
-      <button id="exportBtn" class="btn">Exportar JSON</button>
-      <button id="importBtn" class="btn">Importar JSON</button>
-      <button id="refreshBtn" class="btn">Atualizar</button>
-    </div>
-
-    <div class="card" style="margin-bottom:12px">
-  <label for="currentId">ID</label>
-  <input id="currentId" type="text" readonly style="width:100%; background:#0f1117; border:1px solid #2b2f38; padding:6px; border-radius:6px; color:#fff" />
-</div>
-
-<div class="tabs">
-      <button class="tab-btn active" data-tab="contadores">Contadores</button>
-      <button class="tab-btn" data-tab="plataformas">Plataformas</button>
-      <button class="tab-btn" data-tab="instrucoes">Instruções</button>
-      <button class="tab-btn" data-tab="geral">Geral</button>
-    </div>
-
-    <!-- CONTADORES -->
-    <div id="tab-contadores" class="tab active">
-      <div class="card">
-        <label>Mortes</label>
-        <div class="row">
-          <button class="btn small" id="dMinus">-</button>
-          <input id="dInput" class="small" type="number" min="0" value="0" style="width:60px"/>
-          <button class="btn small" id="dPlus">+</button>
-          <button class="btn small" id="dReset">Zerar</button>
-          <div style="width:10px"></div>
-          <div class="toggle on" id="toggleDeath"></div><label style="margin-left:6px">Mostrar Mortes</label>
-        </div>
-      </div>
-      <div class="card" style="margin-top:8px">
-        <label>Troféus (Atual / Platina)</label>
-        <div class="row" style="align-items:center">
-          <button class="btn small" id="tMinus">-</button>
-          <input id="tCurrent" class="small" type="number" min="0" value="0" style="width:60px"/>
-          <button class="btn small" id="tPlus">+</button>
-          <div style="width:8px"></div>
-          <button class="btn small" id="mMinus">-</button>
-          <input id="tMax" class="small" type="number" min="1" value="1" style="width:60px"/>
-          <button class="btn small" id="mPlus">+</button>
-          <button class="btn small" id="tReset">Zerar</button>
-          <div style="width:10px"></div>
-          <div class="toggle on" id="toggleTrophy"></div><label style="margin-left:6px">Mostrar Troféus</label>
-        </div>
-      </div>
-    </div>
-
-    <!-- PLATAFORMAS -->
-    <div id="tab-plataformas" class="tab">
-      <div class="card">
-        <label>Usuário global (aplica na sub-aba ativa)</label>
-        <div class="row">
-          <input id="globalUser" type="text" placeholder="@usuario"/>
-          <button id="applyAll" class="btn">Aplicar</button>
-        </div>
-
-        <div class="subtabs">
-          <button class="sub-btn active" data-sub="principais">Principais</button>
-          <button class="sub-btn" data-sub="consoles">Consoles</button>
-          <button class="sub-btn" data-sub="redes">Redes</button>
-          <button class="sub-btn" data-sub="custom">Custom</button>
-        </div>
-
-        <div class="platform-list" id="platformList"></div>
-      </div>
-    </div>
-
-    <!-- INSTRUÇÕES -->
-    <div id="tab-instrucoes" class="tab">
-      <div class="card">
-        <label>OBS</label>
-        <div style="color:#b9bcc6;line-height:1.8">
-          <ul style="margin:0 0 0 18px;padding:0;list-style:disc">
-            <li>Source (barra): use a URL <strong>sem parâmetros</strong>. Ela já carrega/gera um <strong>id</strong> automaticamente.</li>
-            <li>Dock (controles): use <code>?dock=true</code> na mesma URL. O <strong>id</strong> deve ser o mesmo do Source.</li>
-            <li>Os botões acima já copiam as URLs corretas, incluindo <code>&id=</code>.</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <!-- GERAL -->
-    <div id="tab-geral" class="tab">
-      <div class="card">
-        <label>Plataforma principal de console</label>
-        <select id="mainConsole">
-          <option value="playstation">PlayStation</option>
-          <option value="xbox">Xbox</option>
-        </select>
-      </div>
-      <div class="card">
-        <label>Propriedades da barra</label>
-        <div class="row" style="align-items:center;">
-          <div style="min-width:120px"><label>Largura (px)</label><input id="barW" class="slider" type="range" step="5" min="350" max="1920" value="450"><span id="barWVal">450</span></div>
-          <div style="min-width:120px"><label>Altura (px)</label><input id="barH" class="slider" type="range" min="35" max="100" value="50"><span id="barHVal">50</span></div>
-          <div style="min-width:120px"><label>Cantos (px)</label><input id="barR" class="slider" type="range" min="1" max="50" value="50"><span id="barRVal">50</span></div>
-          <div style="min-width:120px"><label>Transparência</label><input id="barAlpha" class="slider" type="range" min="0" max="1" step="0.01" value="1"><span id="barAlphaVal">0</span></div>
-        </div>
-        <div style="margin-top:8px" class="row">
-          <button id="applyStyle" class="btn small">Aplicar</button>
-          <button id="defaultStyle" class="btn small">Padrão</button>
-        </div>
-      </div>
-      <div class="card">
-        <label>Logo-box</label>
-        <div class="row" style="align-items:center;">
-          <div style="display:flex;align-items:center;gap:8px"><div id="logoToggle" class="toggle on"></div><span>Habilitar</span></div>
-          <div><label>Tamanho</label><input id="logoSize" type="range" min="65" max="160" value="65"><span id="logoSizeVal">65</span></div>
-          <div>
-            <label>Cor de fundo</label>
-            <select id="logoColor">
-              <option value="auto">Automática (cor da plataforma)</option>
-              <option value="custom">Personalizada</option>
-            </select>
-            <input id="logoBgPicker" type="color" value="#ffffff" title="Cor personalizada">
-          </div>
-          <div style="display:flex;align-items:center;gap:8px"><div id="logoBorderToggle" class="toggle on"></div><span>Borda visível</span></div>
-          <div><label>Espessura</label><input id="logoBorderWidth" type="range" min="1" max="5" value="1"><span id="logoBorderWidthVal">1</span></div>
-          <div><label>Cor</label><input id="logoBorderColor" type="color" value="#ffffff"></div>
-          <div><label>Raio</label><input id="logoRadius" type="range" min="1" max="50" value="15"><span id="logoRadiusVal">999</span></div>
-        </div>
-      </div>
-      <div class="card" hidden>
-        <label>Glow e Sombra</label>
-        <div class="row" style="align-items:center;">
-          <div style="display:flex;align-items:center;gap:8px"><div id="toggleGlow" class="toggle"></div><span>Glow animado</span></div>
-          <div><label>Cor do Glow</label><input id="glowColor" type="color" value="#6c5ce7"></div>
-          <div><label>Sombra</label><input id="shadowAmt" type="range" min="0" max="1" step="0.05" value="0.4"><span id="shadowVal">0.4</span></div>
-        </div>
-      </div>
-      <div class="card" style="margin-top:8px">
-        <button id="resetAll" class="btn">Resetar tudo para o padrão</button>
-      </div>
-    </div>
-  </div>
-  <br>
-  <div class="donation-section">
-      <h3 data-i18n="ApoieOProjeto">Apoie o projeto</h3>
-      <p data-i18n="DoacaoDescricao">Ajude a manter o PlayJEGUE! Faça uma doação via LivePix.</p>
-      <a href="https://livepix.gg/playjegue" target="_blank" class="donation-btn">
-          <i class="fas fa-heart"></i>
-          <span data-i18n="DoarAgora">Doar agora</span>
-      </a>
-  </div>
-
-  <footer class="mt-5">
-      <div data-i18n="PropriedadesWidget">Widget PlayJEGUE — Propriedades: Widget URL <a href="https://playjegue.vercel.app"
-              target="_blank">playjegue.vercel.app</a></div>
-      <div>&copy; <span id="year"></span> PlayJEGUE — <span data-i18n="DireitosReservados">Código desta página
-              licenciado para PlayJEGUE.</span></div>
-  </footer>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="app.js"></script>
+    <!-- Bootstrap & Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
 </body>
+
 </html>
