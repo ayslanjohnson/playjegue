@@ -2,6 +2,7 @@
     --bar-w: 450px;
     --bar-h: 50px;
     --bar-r: 50px;
+    --bar-font-size: 20pt;
     --bar-alpha: 1;
     --glow-enabled: 1;
     --glow-color: #6c5ce7;
@@ -179,7 +180,7 @@ overflow: hidden;
 }
 
 .user {
-    font-size: 15pt;
+    font-size: var(--bar-font-size);
     font-weight: 800;
     white-space: nowrap;
     overflow: hidden;
@@ -201,7 +202,7 @@ overflow: hidden;
 
 .counter {
     font-weight: 900;
-    font-size: 20px;
+    font-size: var(--bar-font-size);
     min-width: 40px;
     text-align: right;
 }

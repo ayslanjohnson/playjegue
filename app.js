@@ -127,6 +127,7 @@ let state = {
     barW: 455,
     barH: 60,
     barR: 50,
+    barFontSize: 20,
     barAlpha: 1,
     mainConsole: 'playstation',
     lang: (navigator.language && navigator.language.startsWith('pt-BR')) ? 'pt-BR' : 'en',
@@ -326,6 +327,7 @@ function setBarStyle() {
     document.documentElement.style.setProperty('--bar-w', state.barW + 'px');
     document.documentElement.style.setProperty('--bar-h', state.barH + 'px');
     document.documentElement.style.setProperty('--bar-r', state.barR + 'px');
+    document.documentElement.style.setProperty('--bar-font-size', state.barFontSize + 'pt');
     document.documentElement.style.setProperty('--bar-alpha', state.barAlpha);
     document.documentElement.style.setProperty('--shadow-amt', state.shadowAmt);
     document.documentElement.style.setProperty('--logo-size', (state.logoBox.size || 65) + 'px');
@@ -597,7 +599,7 @@ function bindControls() {
   });
 
   // Real-time updates for bar properties
-  ['barW', 'barH', 'barR', 'barAlpha'].forEach(id => {
+  ['barW', 'barH', 'barR', 'barAlpha', 'barFontSize'].forEach(id => {
       $('#' + id).addEventListener('input', () => {
           const v = (id === 'barAlpha') ? parseFloat($('#' + id).value).toFixed(2) : $('#' + id).value;
           $('#' + id + 'Val').textContent = v;
@@ -680,6 +682,7 @@ function bindControls() {
       state.barW = parseInt($('#barW').value, 10) || 450;
       state.barH = parseInt($('#barH').value, 10) || 50;
       state.barR = parseInt($('#barR').value, 10) || 50;
+      state.barFontSize = parseInt($('#barFontSize').value, 10) || 20;
       state.barAlpha = parseFloat($('#barAlpha').value) || 0;
       state.glow = $('#toggleGlow').classList.contains('on');
       state.glowColor = $('#glowColor').value;
@@ -694,6 +697,7 @@ function bindControls() {
       state.barW = 450;
       state.barH = 50;
       state.barR = 50;
+      state.barFontSize = 20;
       state.barAlpha = 0;
       state.glow = true;
       state.glowColor = '#cecece';
@@ -706,6 +710,7 @@ function bindControls() {
       $('#barW').value = 450;
       $('#barH').value = 50;
       $('#barR').value = 50;
+      $('#barFontSize').value = 20;
       $('#barAlpha').value = 0;
       $('#barWVal').textContent = 450;
       $('#barHVal').textContent = 50;
@@ -1058,6 +1063,12 @@ function refreshUI(skipTabRestore) {
     if (isDock) {
         let preview = document.querySelector('.preview-section')
         preview.classList.toggle('hidden');
+
+        let navbar = document.querySelector('nav.navbar')
+        navbar.classList.toggle('hidden');
+
+        let idsection = document.querySelector('.id-section')
+        idsection.classList.toggle('hidden');
 
         let fcnButtons = document.querySelector('#function-buttons')
         fcnButtons.classList.toggle('hidden');
