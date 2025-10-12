@@ -1055,10 +1055,12 @@ function refreshUI(skipTabRestore) {
     }
 
     let paramDock = new URLSearchParams(location.search).get('dock');
+    let paramMeld = new URLSearchParams(location.search).get('meld');
 
     // Determine view mode based on URL parameter, not state
     const isDock = paramDock ? paramDock === 'true' ? true : false : false;
-    
+    const isMeld = paramMeld ? paramMeld === 'true' ? true : false : false;
+
     // Set visibility based on mode
     if (isDock) {
         let preview = document.querySelector('.preview-section')
@@ -1075,6 +1077,23 @@ function refreshUI(skipTabRestore) {
 
         let paddingBody = document.querySelector('body')
         paddingBody.classList.toggle('paddingZero');
+    }
+
+    if (isMeld) {
+        let meld = document.querySelector('.meld')
+        meld.classList.toggle('hidden');
+
+        let panel = document.querySelector('.panel')
+        panel.classList.toggle('hidden');
+
+        let donation = document.querySelector('.donation-section')
+        donation.classList.toggle('hidden');
+        
+        let footer = document.querySelector('footer')
+        footer.classList.toggle('hidden');
+
+        let paddingBody = document.querySelector('body')
+        paddingBody.classList.toggle('marginZero');
     }
 
     document.getElementById('year').textContent = new Date().getFullYear();

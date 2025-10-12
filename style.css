@@ -25,7 +25,7 @@
 }
 
 body {
-    background: var(--dark-bg);
+    background: transparent;
     color: var(--text-color);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding: 20px;
@@ -42,7 +42,6 @@ body {
 
 .preview-section {
     display: flex;
-    justify-content: center;
     background: transparent;
     margin-bottom: 3rem;
     margin-top: -25px;
@@ -65,8 +64,6 @@ body {
     padding: 0 12px;
 overflow: hidden;
     position: relative;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, var(--shadow-amt)),
-        0 0 20px rgba(55, 201, 118, 0.3);
     transition: all 0.25s ease;
     z-index: 2;
     padding-left: calc(var(--logo-size));
@@ -410,9 +407,6 @@ overflow: hidden;
 
 .bounce-fade {
     animation: bounceFade 0.5s ease;
-}
-.container {
-    margin: 20px 0 0 0 !important;
 }
 
 .donation-section {
