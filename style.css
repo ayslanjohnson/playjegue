@@ -44,7 +44,6 @@ body {
     display: flex;
     background: transparent;
     margin-bottom: 3rem;
-    margin-top: -25px;
 }
 
 .bar-wrap {
@@ -62,7 +61,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 0 12px;
-overflow: hidden;
+    overflow: hidden;
     position: relative;
     transition: all 0.25s ease;
     z-index: 2;
